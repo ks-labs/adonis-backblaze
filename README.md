@@ -1,5 +1,7 @@
 # Adonis Backblaze Provider
 
+![CI/CD - GHPackages](https://github.com/ks-labs/adonis-backblaze/workflows/CI/CD%20-%20GHPackages/badge.svg)
+
 Adonis BackBlaze Service Provider using `backblaze-b2` under the hood.
 
 ## Install
@@ -24,19 +26,22 @@ const aliases = {
 }
 ```
 
-Register the commands:
+Use it:
 
 ```javascript
-const aceProviders = [...'adonis-scheduler/providers/CommandsProvider']
+const backBlazeProvider = use('BackBlaze')
 ```
 
 ## Usage
 
-### Starting the scheduler
-
-Starting an instance of the kue listener is easy with the included ace command. Simply run `node ace run:scheduler`.
-
-The provider looks for jobs in the `app/Tasks` directory of your AdonisJS project and will automatically register a handler for any tasks that it finds.
+```bash
+BLAZE_KEY_ID= # your backblaze key id
+BLAZE_APP_KEY= # your backblaze app key
+BLAZE_BUCKET_ID= # bucket used to access
+BLAZE_PREFIX= # prefix used to access all bucket
+BLAZE_DEFAULT_DOWNLOAD_DURATION= # default duration of generated download links (in milliseconds)
+BLAZE_DISABLE_UPLOAD= # when true will disable upload to backblaze returning null when false will upload normally (defaults is false)
+```
 
 ## Thanks
 
