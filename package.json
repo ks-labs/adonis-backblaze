@@ -1,6 +1,6 @@
 {
   "name": "@ks-labs/adonis-backblaze",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BackBlaze Service Provider using backblaze-b2 under the hood.",
   "main": "index.js",
   "scripts": {
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ks-labs/backblaze-adonis-provider.git"
+    "url": "git+https://github.com/ks-labs/adonis-backblaze.git"
   },
   "author": "@ks-labs",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/vinicioslc/backblaze-adonis-provider/issues"
+    "url": "https://github.com/ks-labs/backblaze-adonis-provider/issues"
   },
-  "homepage": "https://github.com/vinicioslc/backblaze-adonis-provider#readme",
+  "homepage": "https://github.com/ks-labs/backblaze-adonis-provider#readme",
   "dependencies": {
     "backblaze-b2": "^1.6.0"
   }
