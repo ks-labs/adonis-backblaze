@@ -1,0 +1,25 @@
+{
+  "name": "@ks-labs/adonis-backblaze",
+  "version": "1.0.0",
+  "description": "BackBlaze Service Provider using backblaze-b2 under the hood.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ks-labs/backblaze-adonis-provider.git"
+  },
+  "author": "@ks-labs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vinicioslc/backblaze-adonis-provider/issues"
+  },
+  "homepage": "https://github.com/vinicioslc/backblaze-adonis-provider#readme",
+  "dependencies": {
+    "backblaze-b2": "^1.6.0"
+  }
+}
