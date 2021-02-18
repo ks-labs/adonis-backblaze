@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       # move .npmrc to not cause  "Maximum call stack size exceeded" error when npm install executes
-      - run: npm ci
+      - run: npm test
 
   deploy-package:
     name: 'Deploy Package to Actions'
