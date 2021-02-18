@@ -2,9 +2,12 @@
 
 /** @typedef {import('@adonisjs/bodyparser/src/Multipart/File')} File */
 /** @typedef {import('@adonisjs/framework/src/Env')} Env */
+/** @type {import('@adonisjs/ignitor/src/Helpers')} Helpers */
+const Helpers = use('Helpers')
 
 /** @type {typeof import('../Models/B2File')} */
 const B2File = use('App/Models/B2File')
+// read stream as buffers
 
 const fs = require('fs')
 const path = require('path')
@@ -26,9 +29,8 @@ class B2Service {
     this.blazeBucketID = Env.get('BLAZE_BUCKET_ID')
     this.blazeAccessToken = Env.get('BLAZE_APP_KEY')
     this.bucketPrefix = Env.get('BLAZE_PREFIX')
-    this.defaultDownloadTime = Env.get('BLAZE_DEFAULT_DOWNLOAD_DURATION')
+    this.defaultDownloadTime = parseInt(Env.get('BLAZE_DEFAULT_DOWNLOAD_DURATION', 8640))
     this.isDisabled = Env.get('BLAZE_DISABLE_UPLOAD', 'false') == 'true'
-
     if (!this.isDisabled) {
       const B2 = require('backblaze-b2')
       this.b2 = new B2({
@@ -36,7 +38,6 @@ class B2Service {
         applicationKey: this.blazeAppKey // or masterApplicationKey
       })
     }
-    //
   }
 
   /**
@@ -122,11 +123,17 @@ class B2Service {
     }
   }
 
-  async downloadFileById(fileID) {
+  async downloadFileById(b2FileId) {
     if (!this.isDisabled) {
-      throw new Error('Not Implemented Method')
-      const b2File = await B2File.find(fileID)
-      return b2File
+      const b2File = await B2File.find(b2FileId)
+      const response = await this.b2.downloadFileById({
+        fileId: b2File.fileId,
+        responseType: 'arraybuffer' // options are as in axios: 'arraybuffer', 'blob', 'document', 'json', 'text', 'stream'
+
+        // ...common arguments (optional)
+      }) // returns promise
+
+      return response.data.toString('base64')
     }
   }
 
