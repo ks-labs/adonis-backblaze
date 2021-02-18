@@ -26,6 +26,15 @@ const aliases = {
 }
 ```
 
+Define B2File model as the example on `'./templates/B2File.js'`
+
+The schema also is defined at `'./templates/B2FileSchema.js'`
+
+```javascript
+/** @type {typeof import('../Models/B2File')} */
+const B2File = use('App/Models/B2File')
+```
+
 Use it:
 
 ```javascript
