@@ -1,6 +1,6 @@
 {
-  "name": "@vinicioslc/adonis-b2",
-  "version": "0.1.1",
+  "name": "@ks-labs/adonis-backblaze",
+  "version": "1.0.3",
   "description": "Adonis Provider for BackBlaze Cloud Storage",
   "main": "instructions.js",
   "directories": {
