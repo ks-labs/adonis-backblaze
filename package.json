@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@adonisjs/fold": "^4.1.0",
+    "backblaze-b2": "^1.7.0",
     "macroable": "^4.0.2",
     "md5": "^2.3.0"
   }
