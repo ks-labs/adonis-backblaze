@@ -1,0 +1,33 @@
+{
+  "name": "@vinicioslc/adonis-b2",
+  "version": "0.1.1",
+  "description": "Adonis Provider for BackBlaze Cloud Storage",
+  "main": "instructions.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "lint": "standard",
+    "test:local": "node bin/index.js",
+    "test": "nyc npm run test:local",
+    "posttest": "echo posttest"
+  },
+  "author": "vinicioslc",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@adonisjs/sink": "^1.1.0",
+    "eslint": "^8.4.1",
+    "japa": "^4.0.0",
+    "nyc": "^15.1.0",
+    "prettier-eslint": "^13.0.0",
+    "standard": "^16.0.4"
+  },
+  "dependencies": {
+    "@adonisjs/fold": "^4.1.0",
+    "macroable": "^4.0.2",
+    "md5": "^2.3.0"
+  }
+}
