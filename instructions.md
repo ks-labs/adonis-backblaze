@@ -1,4 +1,4 @@
-## 1. Provider
+## Provider
 
 Make sure to register the provider inside `start/app.js` file.
 
@@ -25,6 +25,8 @@ class UserController {
 }
 ```
 
-## 2. Config
+## Config
 
-The config file is saved as `config/b2-provider.js`. Make sure to tweak it as per your needs.
+The config file is saved as `config/b2-provider.js`.
+
+Make sure to tweak it as per your needs.
