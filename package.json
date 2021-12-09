@@ -1,6 +1,6 @@
 {
   "name": "@ks-labs/adonis-backblaze",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Adonis Provider for BackBlaze Cloud Storage",
   "main": "instructions.js",
   "directories": {
@@ -10,9 +10,13 @@
     "lint": "standard",
     "test:local": "node bin/index.js",
     "test": "nyc npm run test:local",
-    "posttest": "echo posttest"
+    "posttest": "echo posttest",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major"
   },
-  "author": "vinicioslc",
+  "author": "@ks-labs",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -23,7 +27,8 @@
     "japa": "^4.0.0",
     "nyc": "^15.1.0",
     "prettier-eslint": "^13.0.0",
-    "standard": "^16.0.4"
+    "standard": "^16.0.4",
+    "standard-version": "^9.3.1"
   },
   "dependencies": {
     "@adonisjs/fold": "^4.1.0",
