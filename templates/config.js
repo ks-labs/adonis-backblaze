@@ -9,14 +9,16 @@ module.exports = {
    * When enabled, AdonisB2 will automatically avoid upload to backblaze
    * returning a dummy file
    */
-  dummy: Env.get('BLAZE_DISABLE_UPLOAD', 'false') === 'true',
+  dummy: Env.get('BLAZE_DISABLE_UPLOAD') == 'true' ? true : false,
   // Load Envs
-  blazeAppKeyID: Env.get('BLAZE_KEY_ID'),
-  blazeAppKey: Env.get('BLAZE_APP_KEY'),
-  blazeBucketID: Env.get('BLAZE_BUCKET_ID'),
-  blazeAccessToken: Env.get('BLAZE_APP_KEY'),
+  blazeAppKeyID: Env.get('B2_APP_KEY_ID'),
+  blazeAppKeyName: Env.get('B2_APP_KEY_NAME'),
+  blazeAppKey: Env.get('B2_APP_KEY'),
+  blazeBucketID: Env.get('B2_BUCKET_ID'),
+  blazeBucketName: Env.get('B2_BUCKET_NAME'),
+
   /** In general a path to /location that you token have access */
-  bucketPrefix: Env.get('BLAZE_PREFIX'),
+  bucketPrefix: Env.get('B2_APP_KEY_PREFIX'),
   defaultDownloadTime: parseInt(
     Env.get('BLAZE_DEFAULT_DOWNLOAD_DURATION', 8640)
   ),

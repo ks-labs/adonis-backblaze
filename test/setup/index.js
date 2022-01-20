@@ -24,7 +24,37 @@ class Context extends Macroable {
 Context.getters = {}
 Context.macros = {}
 
-module.exports = async () => {
+const fakeConfig = {
+  dummy: true,
+  // Load Envs
+  blazeAppKeyID: 'testing',
+  blazeAppKey: 'testing',
+  blazeBucketID: 'testing',
+  /** In general a path to /location that you token have access */
+  bucketPrefix: 'testing',
+  defaultDownloadTime: parseInt('8640'),
+  defaultTimeout: parseInt('1800000')
+}
+
+require('dotenv').config({
+  path: 'test.env'
+})
+const testConfig = {
+  // Load Envs
+  blazeAppKeyID: process.env.B2_APP_KEY_ID,
+  blazeAppKeyName: process.env.B2_APP_KEY_NAME,
+  blazeAppKey: process.env.B2_APP_KEY,
+  /** In general a path to /location that you token have access */
+  blazeBucketID: process.env.B2_BUCKET_ID,
+  blazeBucketName: process.env.B2_BUCKET_NAME,
+
+  bucketPrefix: process.env.B2_APP_KEY_PREFIX,
+
+  defaultDownloadTime: parseInt('8640'),
+  defaultTimeout: parseInt('1800000')
+}
+
+module.exports = async (opts = { dummy: true }) => {
   ioc.bind('App/Models/B2File', () => FakeB2Model)
 
   ioc.bind('Helpers', () => Helpers)
@@ -33,27 +63,18 @@ module.exports = async () => {
   ioc.singleton('Adonis/Src/Config', () => {
     const config = new Config()
 
-    config.set('app.b2-provider', {
-      /*
-       * When enabled, AdonisB2 will automatically avoid upload to backblaze
-       * returning a dummy file
-       */
-      dummy: true,
-      // Load Envs
-      blazeAppKeyID: 'testing',
-      blazeAppKey: 'testing',
-      blazeBucketID: 'testing',
-      blazeAccessToken: 'testing',
-      /** In general a path to /location that you token have access */
-      bucketPrefix: 'testing',
-      defaultDownloadTime: parseInt('8640'),
-      defaultTimeout: parseInt('1800000')
-    })
+    if (opts.dummy) {
+      config.set('app.b2-provider', fakeConfig)
+    } else {
+      config.set('app.b2-provider', testConfig)
+    }
 
     return config
   })
 
   resolver.appNamespace('App')
 
-  await registrar.providers([path.join(__dirname, '../../providers/B2Provider')]).registerAndBoot()
+  await registrar
+    .providers([path.join(__dirname, '../../providers/B2Provider')])
+    .registerAndBoot()
 }

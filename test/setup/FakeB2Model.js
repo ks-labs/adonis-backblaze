@@ -1,4 +1,6 @@
-'use strict'
+const _ = require('lodash')
+
+;('use strict')
 
 class FakeModel {
   static create(...args) {
@@ -54,6 +56,13 @@ class FakeModel {
       created_at,
       updated_at
     }
+  }
+
+  merge(object) {
+    return _.merge(this, object)
+  }
+  save() {
+    console.log('Fake Save B2 Entity:', this.id)
   }
 }
 

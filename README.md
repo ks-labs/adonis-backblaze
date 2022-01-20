@@ -27,7 +27,7 @@ const B2Provider = use('App/AdonisB2')
 
 class UserController {
   async index({ request, response, params }) {
-    const b2ModelInstance = await B2Provider.uploadBufferFile({
+    const b2ModelInstance = await B2Provider.uploadAndInsertB2File({
       bufferToUpload: Buffer.from('test'),
       originalName: 'FileName'
     })

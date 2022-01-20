@@ -31,7 +31,7 @@ test.group('Providers Initialized', group => {
   test('B2File Creation', async assert => {
     assert.isDefined(ioc.use('AdonisB2')._b2Options)
     const B2Provider = ioc.use('AdonisB2')
-    const uploeaded = await B2Provider.uploadBufferFile({
+    const uploeaded = await B2Provider.uploadAndInsertB2File({
       bufferToUpload: Buffer.from('test')
     })
     assert.isDefined(uploeaded.id)

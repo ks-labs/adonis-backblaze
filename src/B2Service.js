@@ -18,7 +18,6 @@ class B2Service {
       blazeAppKeyID: undefined,
       blazeAppKey: undefined,
       blazeBucketID: undefined,
-      blazeAccessToken: undefined,
       bucketPrefix: undefined,
       defaultDownloadTime: undefined,
       defaultTimeout: undefined
@@ -29,7 +28,6 @@ class B2Service {
       blazeAppKeyID: undefined,
       blazeAppKey: undefined,
       blazeBucketID: undefined,
-      blazeAccessToken: undefined,
       bucketPrefix: undefined,
       defaultDownloadTime: undefined,
       defaultTimeout: undefined
@@ -119,7 +117,7 @@ class B2Service {
     }
   }
 
-  async uploadBufferFile({
+  async uploadAndInsertB2File({
     bufferToUpload,
     originalName,
     fileName,
@@ -135,20 +133,21 @@ class B2Service {
     }
     const uploadFullPath = this._b2FilePathWithPrefix(prefix, fileName)
 
-    const uploadResponse = await this.b2.getUploadUrl({
+    const uploadInfo = await this.b2.getUploadUrl({
       bucketId: this._b2Options.blazeBucketID
     })
 
     // upload file
     const b2UploadObject = {
-      uploadUrl: uploadResponse.data.uploadUrl,
-      uploadAuthToken: uploadResponse.data.authorizationToken,
+      uploadUrl: uploadInfo.data.uploadUrl,
+      uploadAuthToken: uploadInfo.data.authorizationToken,
       fileName: uploadFullPath,
       data: bufferToUpload,
       // optional info headers, prepended with X-Bz-Info- when sent, throws error if more than 10 keys set
       // valid characters should be a-z, A-Z and '-', all other characters will cause an error to be thrown
       info: {
-        original_file_name: fileName
+        filename: fileName,
+        original_file_name: originalName
       },
       onUploadProgress: onUploadProgress || function (event) {},
       axios: {
