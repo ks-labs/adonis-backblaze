@@ -13,6 +13,13 @@ jobs:
   test:
     name: 'Install and test package'
     runs-on: ubuntu-latest
+    env:
+      B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
+      B2_BUCKET_ID: ${{ secrets.B2_BUCKET_ID }}
+      B2_APP_KEY_ID: ${{ secrets.B2_APP_KEY_ID }}
+      B2_APP_KEY_NAME: ${{ secrets.B2_APP_KEY_NAME }}
+      B2_APP_KEY: ${{ secrets.B2_APP_KEY }}
+      B2_APP_KEY_PREFIX: ${{ secrets.B2_APP_KEY_PREFIX }}
     strategy:
       matrix:
         node-version: [14.15.4]
