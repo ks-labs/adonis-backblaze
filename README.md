@@ -59,3 +59,40 @@ const B2File = use('App/Models/B2File')
 ## Thanks
 
 Special thanks to the creator(s) of [AdonisJS](http://adonisjs.com/) for creating such a great framework.
+
+## Known Bugs
+
+- **The entire file path being used as filename**
+
+  Instead the backblaze use the file path folder to build the folder structure, it uses the path as the fully file name.
+
+  The following upload code :
+
+  ```javascript
+    const entityCreated = await B2Provider.uploadAndInsertB2File({
+      bufferToUpload: Buffer.from('File Content'),
+      fileName: 'test.txt',
+      pathToFile: 'custom-folder/custom2',
+      originalName: 'original.name.txt'
+    })
+  ```
+
+  Will generate a path that sounds like this:
+  `/provider-files/custom-folder/test.txt`
+  But we need the filename, without the leading forward slash:
+  `provider-files/custom-folder/test.txt`
+
+  **Cause :**
+
+  So, the app key allowed prefix specified are `B2_APP_KEY_PREFIX=/provider-files`
+  The library parses the leading fowarded slash and all following path, as the filename instead being the folder name.
+
+  **Fix :**
+  Remove the leading backslash
+  from
+  `B2_APP_KEY_PREFIX=/provider-files`
+  to
+  `B2_APP_KEY_PREFIX=provider-files`
+
+  And then when upload some file to backblaze the returned filename will be :
+  `'my-bucket/custom-folder/test.txt'`

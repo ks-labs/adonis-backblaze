@@ -10,29 +10,39 @@ const { readFileSync } = require('fs')
 const { posix } = require('path')
 const path = require('path')
 const md5 = require('md5')
+const NE = require('node-exceptions')
+const { Config } = require('@adonisjs/sink')
+const _ = require('lodash')
 
 class B2Service {
-  constructor(Config, app) {
+  /**
+   * @param  {Config} ConfigInstance
+   * @param  {} app
+   */
+  constructor(ConfigInstance, app) {
+    /** @type {Config} */
+    this.ConfigInstance = ConfigInstance
+    this._setupConfig()
+  }
+  /**
+   * @param  {Config} ConfigInstance
+   */
+  async _setupConfig() {
     this._b2Options = {
-      dummy: false,
+      dummy: undefined,
       blazeAppKeyID: undefined,
       blazeAppKey: undefined,
       blazeBucketID: undefined,
-      bucketPrefix: undefined,
+      blazeAppKeyPrefix: undefined,
       defaultDownloadTime: undefined,
       defaultTimeout: undefined
     }
     // Load Envs
-    this._b2Options = Config.merge('app.b2-provider', {
-      dummy: false,
-      blazeAppKeyID: undefined,
-      blazeAppKey: undefined,
-      blazeBucketID: undefined,
-      bucketPrefix: undefined,
-      defaultDownloadTime: undefined,
-      defaultTimeout: undefined
-    })
+    this._b2Options = this.ConfigInstance.merge('app.b2-provider', this._b2Options)
+    await this.recreateB2Instance()
+  }
 
+  async recreateB2Instance() {
     if (!this._b2Options.dummy) {
       const B2 = require('backblaze-b2')
       this.b2 = new B2({
@@ -42,22 +52,26 @@ class B2Service {
     }
   }
 
+  async _changeConfig(newConfig) {
+    this._b2Options = _.merge(this._b2Options, newConfig)
+    await this.recreateB2Instance()
+    return await this.authorize()
+  }
+
   /**
    * must authorize before any job
    */
   async authorize() {
-    if (!this._b2Options.dummy) {
-      const result = await this.b2.authorize()
-      this.authData = result.data
-
-      if (!this.authData.downloadUrl) {
-        throw new Error(
-          'Invalid Backblaze "downloadUrl" when authorize client.'
-        )
-      }
-      return this.authData
+    if (this._b2Options.dummy) {
+      return null
     }
-    return null
+    const result = await this.b2.authorize()
+    this.authData = result.data
+
+    if (!this.authData.downloadUrl) {
+      throw new Error('Invalid Backblaze "downloadUrl" when authorize client.')
+    }
+    return this.authData
   }
 
   /**
@@ -116,22 +130,16 @@ class B2Service {
       return b2File
     }
   }
-
-  async uploadAndInsertB2File({
-    bufferToUpload,
-    originalName,
+  /**
+   */
+  async uploadBufferToBackBlaze({
     fileName,
+    pathToFile, // optional prefix for filename
+    bufferToUpload,
     onUploadProgress,
-    file_password,
-    prefix
+    originalName
   }) {
-    if (this._b2Options.dummy) {
-      const B2Model = use('App/Models/B2File').createFromBackBlaze({
-        client_file_name: originalName
-      })
-      return B2Model
-    }
-    const uploadFullPath = this._b2FilePathWithPrefix(prefix, fileName)
+    const uploadFullPath = this._b2FilePathWithPrefix(pathToFile, fileName)
 
     const uploadInfo = await this.b2.getUploadUrl({
       bucketId: this._b2Options.blazeBucketID
@@ -155,7 +163,30 @@ class B2Service {
       }
     }
 
-    const response = await this.b2.uploadFile(b2UploadObject) // returns promise
+    return this.b2.uploadFile(b2UploadObject) // returns promise
+  }
+
+  async uploadAndInsertB2File({
+    bufferToUpload,
+    originalName,
+    pathToFile,
+    fileName,
+    onUploadProgress,
+    file_password
+  }) {
+    if (this._b2Options.dummy) {
+      const B2Model = use('App/Models/B2File').createFromBackBlaze({
+        client_file_name: originalName
+      })
+      return B2Model
+    }
+    const response = await this.uploadBufferToBackBlaze({
+      bufferToUpload,
+      originalName,
+      pathToFile,
+      fileName,
+      onUploadProgress
+    })
 
     // store in local database
     /** @type {import('../Models/B2File')} */
@@ -168,26 +199,101 @@ class B2Service {
     return b2File
   }
 
-  async listFilesInFolder({ prefix, limit = 150 }) {
-    const path = [this._b2Options.bucketPrefix, prefix]
-      .filter(value => value)
-      .join('/')
+  async listFilesOnBucket({ prefix, limit = 150 }) {
     if (!this._b2Options.dummy) {
+      const normalizedPath = this._b2FilePathWithPrefix(prefix)
       const resp = await this.b2.listFileNames({
         bucketId: this._b2Options.blazeBucketID,
         maxFileCount: limit,
         delimiter: '',
-        prefix: path
+        prefix: normalizedPath
         // ...common arguments (optional)
       }) // returns promise
 
       return resp.data
     }
   }
+  /**
+   * @param  {Object} opts
+   * @param  {string} opts.b2FileId
+   * @param  {string} opts.optionalNewName
+   * @param  {string} opts.newFilePath
+   * @param  {Object} opts.changeConfig
+   * @param  {Object} opts.changeConfig.from
+   * @param  {Object} opts.changeConfig.to
+   * @param  {string} opts.changeConfig.to.blazeAppKeyID
+   * @param  {string} opts.changeConfig.to.blazeAppKey
+   * @param  {string} opts.changeConfig.to.blazeBucketID
+   * @param  {string} opts.changeConfig.to.blazeAppKeyPrefix
+   * @returns {Promise<StandardApiResponse> } - new backblaze file details
+   */
+  async moveFileByFileId(
+    opts = {
+      b2FileId: null,
+      optionalNewName: null,
+      newFilePath: null,
+      dontDelete: false,
+      changeConfig: null
+    }
+  ) {
+    if (!this._b2Options.dummy) {
+      const changeFromConfig = opts.changeConfig && opts.changeConfig.from
+      if (changeFromConfig) await this._changeConfig(opts.changeConfig.from)
+
+      const fileInfo = await this.b2.getFileInfo({
+        fileId: opts.b2FileId
+      })
+
+      const parsedOldName = path.parse(fileInfo.data.fileName)
+      const fileName = opts.optionalNewName
+        ? path.parse(opts.optionalNewName).base
+        : parsedOldName.base
+      const originalName = fileInfo?.data?.fileInfo?.original_file_name ?? null
+      const response = await this.b2.downloadFileById({
+        fileId: opts.b2FileId,
+        responseType: 'arraybuffer'
+      })
+      if (changeFromConfig) await this._setupConfig() // restore settings
+      const changedToConfig = opts.changeConfig && opts.changeConfig.to
+
+      if (changedToConfig) await this._changeConfig(opts.changeConfig.to)
+
+      const fileCreated = await this.uploadBufferToBackBlaze({
+        fileName,
+        pathToFile: opts.newFilePath,
+        bufferToUpload: response.data,
+        originalName
+      })
+
+      if (changedToConfig) await this._setupConfig() // restore settings
+
+      if (fileCreated.data.contentSha1 !== fileInfo.data.contentSha1) {
+        throw new SHA1MismatchException()
+      }
+
+      return fileCreated
+    }
+  }
+
+  async deleteB2Object({ fileId, fileName }) {
+    if (!this._b2Options.dummy) {
+      return this.b2.deleteFileVersion({
+        fileId,
+        fileName
+      })
+    } else {
+      return {
+        data: {
+          fileId: fileId,
+          fileName: fileName
+        }
+      }
+    }
+  }
 
   /**
    * @param  {number} b2FileId // B2FileModel.id
-   * @param  {string} responseType // response types 'arraybuffer', 'blob', 'document', 'json', 'text', 'stream'
+   * @param  {'arraybuffer'| 'blob'| 'document'|'json'| 'text'| 'stream'} responseType // response types
    * @returns  {ArrayBuffer}
    */
   async downloadFileById(b2FileId, responseType = 'arraybuffer') {
@@ -205,16 +311,32 @@ class B2Service {
     return null
   }
 
-  _b2FilePathWithPrefix(...segments) {
+  _b2FilePathWithPrefix(...args) {
+    const allowedPrefixForKey = this._b2Options.blazeAppKeyPrefix || null
+    let finalPath = []
+    const filteredArgs = args.filter(val => !!val)
+
     // unifica segmentos de caminho para criar um path completo
     // para enviar para uma pasta especifica precisa inicar sem '/' e cada nivel de pasta separada por uma '/'
     // "fileName": "fluffy/kitten.jpg"
     // atualmente retorna com / inicial para conseguir fazer upload corretamente.
-    return (
-      (this._b2Options.bucketPrefix || '') +
-      '/' +
-      posix.normalize(posix.join(...segments.filter(val => val)))
-    )
+    // fileName / prefix
+    if (allowedPrefixForKey) {
+      finalPath.push(allowedPrefixForKey)
+    }
+    if (filteredArgs && filteredArgs.length > 0) {
+      finalPath.push(...filteredArgs)
+    }
+    return finalPath.join('/')
+  }
+
+  _buildFilePathCustomPrefix(customPrefix, ...segments) {
+    // unifica segmentos de caminho para criar um path completo
+    // para enviar para uma pasta especifica precisa inicar sem '/' e cada nivel de pasta separada por uma '/'
+    // "fileName": "fluffy/kitten.jpg"
+    // atualmente retorna com / inicial para conseguir fazer upload corretamente.
+    // fileName / prefix
+    return (customPrefix || '') + '/' + posix.normalize(posix.join(...segments.filter(val => val)))
   }
 
   async normalizeAndCreateB2File(response) {
@@ -223,4 +345,14 @@ class B2Service {
   }
 }
 
+class SHA1MismatchException extends NE.LogicalException {
+  constructor(
+    message = 'The original file and the moved file SHA1 do not match.',
+    status = 500,
+    code = 'MOVED_SHA1_MISMATCH',
+    link = null
+  ) {
+    super(message, status, code, link)
+  }
+}
 module.exports = B2Service

@@ -18,9 +18,7 @@ module.exports = {
   blazeBucketName: Env.get('B2_BUCKET_NAME'),
 
   /** In general a path to /location that you token have access */
-  bucketPrefix: Env.get('B2_APP_KEY_PREFIX'),
-  defaultDownloadTime: parseInt(
-    Env.get('BLAZE_DEFAULT_DOWNLOAD_DURATION', 8640)
-  ),
+  blazeAppKeyPrefix: Env.get('B2_APP_KEY_PREFIX'),
+  defaultDownloadTime: parseInt(Env.get('BLAZE_DEFAULT_DOWNLOAD_DURATION', 8640)),
   defaultTimeout: 1800000 // time in millis for timeout links during download
 }

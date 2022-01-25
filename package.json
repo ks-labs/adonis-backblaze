@@ -8,9 +8,10 @@
   },
   "scripts": {
     "lint": "standard",
-    "test:local": "node bin/index.js",
-    "test:watch": "nodemon bin/index.js",
-    "test": "nyc npm run test:local",
+    "test:local": "node bin/japaFile.js",
+    "test:watch": "nodemon bin/japaFile.js",
+    "test": "npm run test:local",
+    "coverage": "nyc npm run test:local",
     "posttest": "echo posttest",
     "release": "standard-version",
     "release:minor": "standard-version --release-as minor",
@@ -31,6 +32,7 @@
     "nodemon": "^2.0.15",
     "nyc": "^15.1.0",
     "prettier-eslint": "^13.0.0",
+    "should": "^13.2.3",
     "standard": "^16.0.4",
     "standard-version": "^9.3.1"
   },
@@ -38,6 +40,7 @@
     "@adonisjs/fold": "^4.1.0",
     "backblaze-b2": "^1.7.0",
     "macroable": "^4.0.2",
-    "md5": "^2.3.0"
+    "md5": "^2.3.0",
+    "node-exceptions": "^4.0.1"
   }
 }

@@ -4,40 +4,35 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## 2.0.0 (2022-01-20)
 
-
 ### ⚠ BREAKING CHANGES
 
-* renamed method 'uploadBufferFile' to 'uploadAndInsertB2File' for mean exactly what it does
+- renamed method 'uploadBufferFile' to 'uploadAndInsertB2File' for mean exactly what it does
 
 ### Features
 
-* added download option that downloads a stream from backblaze and returns a buffer with all contents (future will be an stream). ([2b29d5f](https://github.com/ks-labs/adonis-backblaze/commit/2b29d5f678e30a789a38433b10b956a7229ee1bc))
-* initial implementation ([5291c7b](https://github.com/ks-labs/adonis-backblaze/commit/5291c7b0029a008f9367ef72d7538c0868c367e2))
-
+- added download option that downloads a stream from backblaze and returns a buffer with all contents (future will be an stream). ([2b29d5f](https://github.com/ks-labs/adonis-backblaze/commit/2b29d5f678e30a789a38433b10b956a7229ee1bc))
+- initial implementation ([5291c7b](https://github.com/ks-labs/adonis-backblaze/commit/5291c7b0029a008f9367ef72d7538c0868c367e2))
 
 ### Bug Fixes
 
-* add readme status badge and change docs ([426a885](https://github.com/ks-labs/adonis-backblaze/commit/426a8850c944883433ab4f00d6d0b47e4fdf09b5))
-* added needed dependency ([b9eae09](https://github.com/ks-labs/adonis-backblaze/commit/b9eae09268a455342d3a48794bc1f2af3c39debc))
-* name and repo location address ([099d6cb](https://github.com/ks-labs/adonis-backblaze/commit/099d6cbf89177cc933d6589810ee96d4a8d7b4bb))
+- add readme status badge and change docs ([426a885](https://github.com/ks-labs/adonis-backblaze/commit/426a8850c944883433ab4f00d6d0b47e4fdf09b5))
+- added needed dependency ([b9eae09](https://github.com/ks-labs/adonis-backblaze/commit/b9eae09268a455342d3a48794bc1f2af3c39debc))
+- name and repo location address ([099d6cb](https://github.com/ks-labs/adonis-backblaze/commit/099d6cbf89177cc933d6589810ee96d4a8d7b4bb))
 
-
-* improved .env names and remove useless env ([33bee4b](https://github.com/ks-labs/adonis-backblaze/commit/33bee4b47f1926ec230b9a853ee3b45f9cd19a36))
+- improved .env names and remove useless env ([33bee4b](https://github.com/ks-labs/adonis-backblaze/commit/33bee4b47f1926ec230b9a853ee3b45f9cd19a36))
 
 ### 1.0.4 (2021-12-09)
 
-
 ### Features
 
-* added download option that downloads a stream from backblaze and returns a buffer with all contents (future will be an stream). ([2b29d5f](https://github.com/ks-labs/adonis-backblaze/commit/2b29d5f678e30a789a38433b10b956a7229ee1bc))
-* initial implementation ([5291c7b](https://github.com/ks-labs/adonis-backblaze/commit/5291c7b0029a008f9367ef72d7538c0868c367e2))
-
+- added download option that downloads a stream from backblaze and returns a buffer with all contents (future will be an stream). ([2b29d5f](https://github.com/ks-labs/adonis-backblaze/commit/2b29d5f678e30a789a38433b10b956a7229ee1bc))
+- initial implementation ([5291c7b](https://github.com/ks-labs/adonis-backblaze/commit/5291c7b0029a008f9367ef72d7538c0868c367e2))
 
 ### Bug Fixes
 
-* add readme status badge and change docs ([426a885](https://github.com/ks-labs/adonis-backblaze/commit/426a8850c944883433ab4f00d6d0b47e4fdf09b5))
-* added needed dependency ([b9eae09](https://github.com/ks-labs/adonis-backblaze/commit/b9eae09268a455342d3a48794bc1f2af3c39debc))
-* name and repo location address ([099d6cb](https://github.com/ks-labs/adonis-backblaze/commit/099d6cbf89177cc933d6589810ee96d4a8d7b4bb))
+- add readme status badge and change docs ([426a885](https://github.com/ks-labs/adonis-backblaze/commit/426a8850c944883433ab4f00d6d0b47e4fdf09b5))
+- added needed dependency ([b9eae09](https://github.com/ks-labs/adonis-backblaze/commit/b9eae09268a455342d3a48794bc1f2af3c39debc))
+- name and repo location address ([099d6cb](https://github.com/ks-labs/adonis-backblaze/commit/099d6cbf89177cc933d6589810ee96d4a8d7b4bb))
 
 # Changelog
 

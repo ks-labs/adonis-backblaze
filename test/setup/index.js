@@ -31,7 +31,7 @@ const fakeConfig = {
   blazeAppKey: 'testing',
   blazeBucketID: 'testing',
   /** In general a path to /location that you token have access */
-  bucketPrefix: 'testing',
+  blazeAppKeyPrefix: 'testing',
   defaultDownloadTime: parseInt('8640'),
   defaultTimeout: parseInt('1800000')
 }
@@ -48,7 +48,7 @@ const testConfig = {
   blazeBucketID: process.env.B2_BUCKET_ID,
   blazeBucketName: process.env.B2_BUCKET_NAME,
 
-  bucketPrefix: process.env.B2_APP_KEY_PREFIX,
+  blazeAppKeyPrefix: process.env.B2_APP_KEY_PREFIX,
 
   defaultDownloadTime: parseInt('8640'),
   defaultTimeout: parseInt('1800000')
@@ -74,7 +74,5 @@ module.exports = async (opts = { dummy: true }) => {
 
   resolver.appNamespace('App')
 
-  await registrar
-    .providers([path.join(__dirname, '../../providers/B2Provider')])
-    .registerAndBoot()
+  await registrar.providers([path.join(__dirname, '../../providers/B2Provider')]).registerAndBoot()
 }

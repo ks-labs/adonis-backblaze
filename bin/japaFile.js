@@ -3,6 +3,6 @@
 const { configure } = require('japa')
 
 configure({
-  files: ['test/*.spec.js'],
-  timeout: 15000
+  files: ['test/*.test.js'],
+  timeout: 150000
 })

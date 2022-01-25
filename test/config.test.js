@@ -5,7 +5,7 @@ const { ioc } = require('@adonisjs/fold')
 
 const setup = require('./setup')
 
-test.group('Providers Initialized', group => {
+test.group('Providers initialization working', group => {
   group.before(async () => {
     await setup()
   })

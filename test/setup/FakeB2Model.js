@@ -3,7 +3,7 @@ const _ = require('lodash')
 ;('use strict')
 
 class FakeModel {
-  static create(...args) {
+  static create(args) {
     const newInstance = new FakeModel()
     for (const key in args) {
       if (Object.hasOwnProperty.call(args, key)) {
@@ -16,7 +16,9 @@ class FakeModel {
   }
 
   static async createFromBackBlaze(backBlazeObject) {
-    return FakeModel.create(FakeModel.fromBBlazeToB2File(backBlazeObject))
+    if (Array.isArray(backBlazeObject))
+      return FakeModel.create(FakeModel.fromBBlazeToB2File(backBlazeObject[0]))
+    else return FakeModel.create(FakeModel.fromBBlazeToB2File(backBlazeObject))
   }
 
   static fromBBlazeToB2File(object) {
@@ -61,9 +63,7 @@ class FakeModel {
   merge(object) {
     return _.merge(this, object)
   }
-  save() {
-    console.log('Fake Save B2 Entity:', this.id)
-  }
+  save() {}
 }
 
 module.exports = FakeModel
