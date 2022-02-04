@@ -1,33 +1,39 @@
-'use-strict'
+const fs = require('fs')
+
+;('use-strict')
 
 /** @typedef {import('@adonisjs/bodyparser/src/Multipart/File')} File */
 
-/** @type {typeof import('../Models/B2File')} */
-const B2File = use('App/Models/B2File')
 // read stream as buffers
 
-const { readFileSync } = require('fs')
+const { readFileSync, fstat } = require('fs')
 const { posix } = require('path')
 const path = require('path')
 const md5 = require('md5')
 const NE = require('node-exceptions')
-const { Config } = require('@adonisjs/sink')
+const { Config, Helpers } = require('@adonisjs/sink')
+
 const _ = require('lodash')
+
+/** @type {typeof import('../Models/B2File')} */
+const B2File = use('App/Models/B2File')
 
 class B2Service {
   /**
    * @param  {Config} ConfigInstance
-   * @param  {} app
+   * @param  {Helpers} Helpers
    */
-  constructor(ConfigInstance, app) {
+  constructor(ConfigInstance, Helpers) {
     /** @type {Config} */
     this.ConfigInstance = ConfigInstance
-    this._setupConfig()
+    /** @type {import('@adonisjs/sink').Helpers} */
+    this._helpers = Helpers
+    this._loadDefaultConfig()
   }
   /**
    * @param  {Config} ConfigInstance
    */
-  async _setupConfig() {
+  async _loadDefaultConfig() {
     this._b2Options = {
       dummy: undefined,
       blazeAppKeyID: undefined,
@@ -43,13 +49,14 @@ class B2Service {
   }
 
   async recreateB2Instance() {
-    if (!this._b2Options.dummy) {
-      const B2 = require('backblaze-b2')
-      this.b2 = new B2({
-        applicationKeyId: this._b2Options.blazeAppKeyID, // or accountId: 'accountId'
-        applicationKey: this._b2Options.blazeAppKey // or masterApplicationKey
-      })
+    if (this._b2Options.dummy) {
+      return
     }
+    const B2 = require('backblaze-b2')
+    this.b2 = new B2({
+      applicationKeyId: this._b2Options.blazeAppKeyID, // or accountId: 'accountId'
+      applicationKey: this._b2Options.blazeAppKey // or masterApplicationKey
+    })
   }
 
   async _changeConfig(newConfig) {
@@ -137,7 +144,8 @@ class B2Service {
     pathToFile, // optional prefix for filename
     bufferToUpload,
     onUploadProgress,
-    originalName
+    originalName,
+    info = null
   }) {
     const uploadFullPath = this._b2FilePathWithPrefix(pathToFile, fileName)
 
@@ -153,7 +161,7 @@ class B2Service {
       data: bufferToUpload,
       // optional info headers, prepended with X-Bz-Info- when sent, throws error if more than 10 keys set
       // valid characters should be a-z, A-Z and '-', all other characters will cause an error to be thrown
-      info: {
+      info: info ?? {
         filename: fileName,
         original_file_name: originalName
       },
@@ -227,33 +235,33 @@ class B2Service {
    * @param  {string} opts.changeConfig.to.blazeAppKeyPrefix
    * @returns {Promise<StandardApiResponse> } - new backblaze file details
    */
-  async moveFileByFileId(
-    opts = {
-      b2FileId: null,
-      optionalNewName: null,
-      newFilePath: null,
-      dontDelete: false,
-      changeConfig: null
-    }
-  ) {
+  async moveFileByFileId(opts = {}) {
+    const {
+      originFileId = null,
+      optionalNewName = null,
+      newFilePath = null,
+      deleteOldFile = false,
+      changeConfig = null
+    } = opts
     if (!this._b2Options.dummy) {
-      const changeFromConfig = opts.changeConfig && opts.changeConfig.from
-      if (changeFromConfig) await this._changeConfig(opts.changeConfig.from)
+      const hasFromConfig = opts.changeConfig && opts.changeConfig.from
+      if (hasFromConfig) await this._changeConfig(opts.changeConfig.from)
 
       const fileInfo = await this.b2.getFileInfo({
-        fileId: opts.b2FileId
+        fileId: originFileId
       })
 
-      const parsedOldName = path.parse(fileInfo.data.fileName)
+      const originObject = fileInfo?.data
+      const parsedOldName = path.parse(originObject?.fileName)
       const fileName = opts.optionalNewName
         ? path.parse(opts.optionalNewName).base
         : parsedOldName.base
-      const originalName = fileInfo?.data?.fileInfo?.original_file_name ?? null
+      const originalName = originObject?.fileInfo?.original_file_name ?? null
       const response = await this.b2.downloadFileById({
-        fileId: opts.b2FileId,
+        fileId: originFileId,
         responseType: 'arraybuffer'
       })
-      if (changeFromConfig) await this._setupConfig() // restore settings
+      if (hasFromConfig) await this._loadDefaultConfig() // restore settings
       const changedToConfig = opts.changeConfig && opts.changeConfig.to
 
       if (changedToConfig) await this._changeConfig(opts.changeConfig.to)
@@ -265,23 +273,138 @@ class B2Service {
         originalName
       })
 
-      if (changedToConfig) await this._setupConfig() // restore settings
+      if (changedToConfig) await this._loadDefaultConfig() // restore settings
 
-      if (fileCreated.data.contentSha1 !== fileInfo.data.contentSha1) {
+      if (fileCreated.data.contentSha1 !== originObject.contentSha1) {
         throw new SHA1MismatchException()
+      } else {
+        if (deleteOldFile) {
+          await this._changeConfig(opts.changeConfig.from)
+          await this.deleteB2Object(originObject)
+        }
       }
 
       return fileCreated
     }
   }
+  /**
+   * @param  {Object} opts
+   * @param  {Object} opts.limit - limit of files to migrate 100 is default
+   * @param  {Object} opts.from
+   * @param  {Object} opts.from.blazeAppKeyPrefix
+   * @param  {Object} opts.from.blazeAppKey
+   * @param  {Object} opts.from.blazeAppKeyID
+   * @param  {Object} opts.from.blazeBucketID
+   * @param  {Object} opts.to
+   * @param  {string} opts.to.blazeAppKeyID
+   * @param  {string} opts.to.blazeAppKey
+   * @param  {string} opts.to.blazeBucketID
+   * @param  {string} opts.to.blazeAppKeyPrefix
+   * @returns {Promise<StandardApiResponse> } - new backblaze file details
+   */
+  async migrateFilesFromToken(opts = {}) {
+    const { to = null, from = null, limit = 100, deleteOldFile = false } = opts
+    if (this._b2Options.dummy) throw new Error('Dummy mode is not supported for this method')
 
+    if (!from) throw new Error('from config is required')
+    if (!to) throw new Error('to config is required')
+    const migratedFiles = []
+    const oldFilesTmp = this._helpers.tmpPath(
+      '/migration-' +
+        from.blazeAppKey.substr(from.blazeAppKey.length - 7, from.blazeAppKey.length - 1) +
+        '-old'
+    )
+    await this._changeConfig(from)
+    const oldRequest = await this.listFilesOnBucket({
+      limit
+    })
+    console.log('[LOG] Total old files to migrate:', oldRequest?.files?.length ?? 0)
+
+    let totalMigrated = 0
+    for (const oldFile of oldRequest.files) {
+      const downloaded = await this.b2.downloadFileById({
+        fileId: oldFile.fileId,
+        responseType: 'arraybuffer'
+      })
+      totalMigrated++
+      console.log(
+        '[LOG] Downloading',
+        totalMigrated,
+        'of',
+        oldRequest?.files?.length ?? 0,
+        'old files'
+      )
+      const oldFilePath = path.join(oldFilesTmp, oldFile.fileName)
+
+      fs.mkdirSync(path.parse(oldFilePath).dir, {
+        recursive: true
+      })
+      await fs.writeFileSync(oldFilePath, downloaded.data)
+
+      migratedFiles.push({
+        old: {
+          info: oldFile,
+          tmpPath: oldFilePath
+        },
+        new: {}
+      })
+    }
+    console.log('[LOG] All files downloaded with success')
+    console.log('[LOG] Changing to new token and uploading:')
+
+    await this._changeConfig(to)
+    for (const id in migratedFiles) {
+      let downloaded = migratedFiles[id]
+      console.log(
+        '[LOG] Uploading',
+        'remaining',
+        totalMigrated--,
+        'of',
+        oldRequest?.files?.length ?? 0,
+        'files total'
+      )
+      const fileCreated = await this.uploadBufferToBackBlaze({
+        fileName: downloaded.old.info.fileName,
+        bufferToUpload: fs.readFileSync(downloaded.old.tmpPath),
+        info: downloaded.old.info.info
+      })
+      migratedFiles[id].new.info = fileCreated?.data
+      if (migratedFiles[id].new.info.contentSha1 != downloaded.old.info.contentSha1) {
+        migratedFiles[id].error = new SHA1MismatchException()
+      }
+    }
+    let hasError = false
+    for (const migrate of migratedFiles) {
+      if (migrate.error) {
+        hasError = true
+      }
+    }
+    await this._changeConfig(opts.from)
+    if (deleteOldFile && !hasError) {
+      console.log('[LOG] All files migrated with success')
+      for (const migrate of migratedFiles) {
+        totalMigrated++
+        console.log(
+          '[LOG] Deleting old files ',
+          totalMigrated,
+          'of',
+          oldRequest?.files?.length ?? 0,
+          ' old files'
+        )
+        await this.deleteB2Object(migrate.old.info)
+      }
+      console.log('[LOG] finished migration')
+    } else {
+      console.log('[WARN] some files has errors during migration')
+      console.log('[WARN] (nothing will be deleted)')
+    }
+
+    // restore default settings
+    await this._loadDefaultConfig()
+    return migratedFiles
+  }
   async deleteB2Object({ fileId, fileName }) {
     if (!this._b2Options.dummy) {
-      return this.b2.deleteFileVersion({
-        fileId,
-        fileName
-      })
-    } else {
       return {
         data: {
           fileId: fileId,
@@ -289,6 +412,10 @@ class B2Service {
         }
       }
     }
+    return this.b2.deleteFileVersion({
+      fileId,
+      fileName
+    })
   }
 
   /**
@@ -327,7 +454,7 @@ class B2Service {
     if (filteredArgs && filteredArgs.length > 0) {
       finalPath.push(...filteredArgs)
     }
-    return finalPath.join('/')
+    return finalPath.join('/').split('//').join('/')
   }
 
   _buildFilePathCustomPrefix(customPrefix, ...segments) {

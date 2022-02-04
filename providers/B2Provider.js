@@ -20,8 +20,8 @@ class B2Provider extends ServiceProvider {
    */
   register() {
     const Config = this.app.use('Adonis/Src/Config')
-
-    this.app.singleton('AdonisB2', app => new B2Service(Config, app))
+    const Helpers = this.app.use('Helpers')
+    this.app.singleton('AdonisB2', app => new B2Service(Config, Helpers))
   }
 
   /**

@@ -1,20 +1,21 @@
 'use strict'
-/** @typedef {import('../src/B2Service')} B2Service*/
-
-const test = require('japa')
-const { ioc } = require('@adonisjs/fold')
-const should = require('should')
-
-const setup = require('./setup')
 require('dotenv').config('test.env')
 
-test.group('Integration Test Authentication', group => {
+const test = require('japa')
+const should = require('should')
+
+const { ioc } = require('@adonisjs/fold')
+/** @typedef {import('../../src/B2Service')} B2Service*/
+const { emptyBucket } = require('../setup/helpers')
+
+test.group('Backblaze Integration Tests', group => {
   group.before(async () => {
+    const setup = require('../setup')
     await setup({ dummy: false })
   })
 
-  group.beforeEach(() => {
-    ioc.restore()
+  group.beforeEach(async () => {
+    await ioc.restore()
   })
 
   test('B2Provider', async assert => {
@@ -79,24 +80,28 @@ test.group('Integration Test Authentication', group => {
   // omega
   // '/omega-test/certificates/3f10233f64f7294d4df9fd653b7627c4.pdf'
   // '/omega-test/certificates/4ce87c1719b67d6027d45a2517c8f56a.xls'
-  test('Back blaze object move to diferent app prefix', async assert => {
-    const configWithSlash = {
+  test('Object move to different app token and prefix', async assert => {
+    const oldConfigSlash = {
       blazeAppKey: process.env.OLD_B2_APP_KEY,
       blazeAppKeyID: process.env.OLD_B2_APP_KEY_ID,
       blazeAppKeyName: process.env.OLD_B2_APP_KEY_NAME,
       blazeAppKeyPrefix: process.env.OLD_B2_APP_KEY_PREFIX
     }
-    const configWithoutSlash = {
+    if (!oldConfigSlash.blazeAppKey) throw new Error('OLD_B2_APP_KEY is not defined')
+
+    const newConfigWithout = {
       blazeAppKey: process.env.B2_APP_KEY,
       blazeAppKeyID: process.env.B2_APP_KEY_ID,
       blazeAppKeyName: process.env.B2_APP_KEY_NAME,
       blazeAppKeyPrefix: process.env.B2_APP_KEY_PREFIX
     }
+    if (!newConfigWithout.blazeAppKey) throw new Error('B2_APP_KEY is not defined')
+
     /** @type {B2Service} */
     const B2Provider = ioc.use('AdonisB2')
-    await B2Provider._changeConfig(configWithSlash)
+    await B2Provider._changeConfig(oldConfigSlash)
     const slashedObject = await B2Provider.uploadAndInsertB2File({
-      bufferToUpload: Buffer.from('File Content !!'),
+      bufferToUpload: Buffer.from('Text Content !!'),
       fileName: 'test.txt',
       pathToFile: 'custom-folder',
       originalName: 'original.name.txt'
@@ -111,11 +116,12 @@ test.group('Integration Test Authentication', group => {
     should(firstFile).not.be.empty()
 
     const newMovedFile = await B2Provider.moveFileByFileId({
-      b2FileId: firstFile.fileId,
+      originFileId: firstFile.fileId,
+      deleteOldFile: true,
       newFilePath: 'new-moved',
-      dontDeleteOld: true,
       changeConfig: {
-        to: configWithoutSlash
+        from: oldConfigSlash,
+        to: newConfigWithout
       }
     })
 
@@ -126,9 +132,84 @@ test.group('Integration Test Authentication', group => {
     const deleted = await B2Provider.deleteB2Object(newMovedFile.data)
     should(deleted).not.be.empty()
 
-    await B2Provider._changeConfig(configWithSlash)
+    await B2Provider._changeConfig(oldConfigSlash)
     await B2Provider.authorize()
     const deletedSlash = await B2Provider.deleteB2Object(slashedObject)
     should(deletedSlash).not.be.empty()
+  })
+
+  test.only('Move all files from one app token to another', async assert => {
+    const oldConfigSlash = {
+      blazeAppKey: process.env.OLD_B2_APP_KEY,
+      blazeAppKeyID: process.env.OLD_B2_APP_KEY_ID,
+      blazeAppKeyName: process.env.OLD_B2_APP_KEY_NAME,
+      blazeAppKeyPrefix: process.env.OLD_B2_APP_KEY_PREFIX
+    }
+    if (!oldConfigSlash.blazeAppKey) throw new Error('OLD_B2_APP_KEY is not defined')
+
+    const newConfigWithout = {
+      blazeAppKey: process.env.B2_APP_KEY,
+      blazeAppKeyID: process.env.B2_APP_KEY_ID,
+      blazeAppKeyName: process.env.B2_APP_KEY_NAME,
+      blazeAppKeyPrefix: process.env.B2_APP_KEY_PREFIX
+    }
+    if (!newConfigWithout.blazeAppKey) throw new Error('B2_APP_KEY is not defined')
+    /** @type {B2Service} */
+    const b2Instance = ioc.use('AdonisB2')
+    await b2Instance._changeConfig(oldConfigSlash)
+
+    await emptyBucket(b2Instance)
+    const originObj1 = await b2Instance.uploadAndInsertB2File({
+      bufferToUpload: Buffer.from('Text Content !!'),
+      fileName: 'test1.txt',
+      pathToFile: 'custom-folder1',
+      originalName: 'original.name1.txt'
+    })
+
+    const originObj2 = await b2Instance.uploadAndInsertB2File({
+      bufferToUpload: Buffer.from('Text Content !!'),
+      fileName: 'test2.txt',
+      pathToFile: 'custom-folder2',
+      originalName: 'original.name2.txt'
+    })
+
+    const originObj3 = await b2Instance.uploadAndInsertB2File({
+      bufferToUpload: Buffer.from('Text Content !!'),
+      fileName: 'test3.txt',
+      pathToFile: 'custom-folder3',
+      originalName: 'original.name3.txt'
+    })
+
+    const allOriginObjects = [originObj1, originObj2, originObj3]
+    const filesToMove = allOriginObjects.map(file => {
+      return {
+        old: file,
+        new: {
+          path: file.fileName
+        }
+      }
+    })
+    // List all files uploaded
+    const beforeMove = await b2Instance.listFilesOnBucket({
+      limit: 1000
+    })
+    should(beforeMove.files).be.not.null()
+    should(beforeMove.files.length).be.equal(3)
+    should(beforeMove.files[0].fileName).not.be.empty()
+
+    const migration = await b2Instance.migrateFilesFromToken({
+      deleteOldFile: true,
+      from: oldConfigSlash,
+      to: newConfigWithout
+    })
+
+    await b2Instance._changeConfig(newConfigWithout)
+    const afterMove = await b2Instance.listFilesOnBucket({
+      limit: 1000
+    })
+    should(afterMove.files).be.not.null()
+    should(afterMove.files.length).be.equal(3)
+    should(afterMove.files[0]).not.be.empty()
+    await emptyBucket(b2Instance, newConfigWithout)
   })
 })

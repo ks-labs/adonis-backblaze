@@ -57,7 +57,7 @@ const testConfig = {
 module.exports = async (opts = { dummy: true }) => {
   ioc.bind('App/Models/B2File', () => FakeB2Model)
 
-  ioc.bind('Helpers', () => Helpers)
+  ioc.bind('Helpers', () => new Helpers(path.join(__dirname + '/../')))
   ioc.bind('Env', () => Env)
 
   ioc.singleton('Adonis/Src/Config', () => {
