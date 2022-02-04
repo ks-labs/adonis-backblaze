@@ -289,6 +289,7 @@ class B2Service {
   }
   /**
    * @param  {Object} opts
+   * @param  {Object} opts.deleteOldFile - delete the old file after success migration
    * @param  {Object} opts.limit - limit of files to migrate 100 is default
    * @param  {Object} opts.from
    * @param  {Object} opts.from.blazeAppKeyPrefix
@@ -354,23 +355,29 @@ class B2Service {
 
     await this._changeConfig(to)
     for (const id in migratedFiles) {
-      let downloaded = migratedFiles[id]
-      console.log(
-        '[LOG] Uploading',
-        'remaining',
-        totalMigrated--,
-        'of',
-        oldRequest?.files?.length ?? 0,
-        'files total'
-      )
-      const fileCreated = await this.uploadBufferToBackBlaze({
-        fileName: downloaded.old.info.fileName,
-        bufferToUpload: fs.readFileSync(downloaded.old.tmpPath),
-        info: downloaded.old.info.info
-      })
-      migratedFiles[id].new.info = fileCreated?.data
-      if (migratedFiles[id].new.info.contentSha1 != downloaded.old.info.contentSha1) {
-        migratedFiles[id].error = new SHA1MismatchException()
+      try {
+        let downloaded = migratedFiles[id]
+        migratedFiles[id].error = null
+        console.log(
+          '[LOG] Uploading',
+          'remaining',
+          totalMigrated--,
+          'of',
+          oldRequest?.files?.length ?? 0,
+          'files total'
+        )
+        const fileCreated = await this.uploadBufferToBackBlaze({
+          fileName: downloaded.old.info.fileName,
+          bufferToUpload: fs.readFileSync(downloaded.old.tmpPath),
+          info: downloaded.old.info.info
+        })
+        migratedFiles[id].new.info = fileCreated?.data
+        if (migratedFiles[id].new.info.contentSha1 != downloaded.old.info.contentSha1) {
+          throw new SHA1MismatchException()
+        }
+      } catch (error) {
+        console.error(error)
+        migratedFiles[id].error = error
       }
     }
     let hasError = false
@@ -379,24 +386,27 @@ class B2Service {
         hasError = true
       }
     }
-    await this._changeConfig(opts.from)
-    if (deleteOldFile && !hasError) {
-      console.log('[LOG] All files migrated with success')
-      for (const migrate of migratedFiles) {
-        totalMigrated++
-        console.log(
-          '[LOG] Deleting old files ',
-          totalMigrated,
-          'of',
-          oldRequest?.files?.length ?? 0,
-          ' old files'
-        )
-        await this.deleteB2Object(migrate.old.info)
+    console.log('[LOG] All files migrated with success')
+    if (deleteOldFile) {
+      console.log('[LOG] Changing to old token and deleting old files:')
+      await this._changeConfig(opts.from)
+      if (!hasError) {
+        for (const migrate of migratedFiles) {
+          totalMigrated++
+          console.log(
+            '[LOG] Deleting old files ',
+            totalMigrated,
+            'of',
+            oldRequest?.files?.length ?? 0,
+            ' old files'
+          )
+          await this.deleteB2Object(migrate.old.info)
+        }
+        console.log('[LOG] finished migration')
+      } else {
+        console.log('[WARN] some files has errors during migration')
+        console.log('[WARN] (nothing will be deleted)')
       }
-      console.log('[LOG] finished migration')
-    } else {
-      console.log('[WARN] some files has errors during migration')
-      console.log('[WARN] (nothing will be deleted)')
     }
 
     // restore default settings

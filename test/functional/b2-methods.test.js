@@ -160,29 +160,27 @@ test.group('Backblaze Integration Tests', group => {
 
     await emptyBucket(b2Instance)
 
-    console.log(
-      'Uploaded all files',
-      await Promise.all([
-        b2Instance.uploadAndInsertB2File({
-          bufferToUpload: Buffer.from('Text Content !!'),
-          fileName: 'test1.txt',
-          pathToFile: 'migration-folder',
-          originalName: 'original.name1.txt'
-        }),
-        b2Instance.uploadAndInsertB2File({
-          bufferToUpload: Buffer.from('Text Content !!'),
-          fileName: 'test2.txt',
-          pathToFile: 'migration-folder',
-          originalName: 'original.name2.txt'
-        }),
-        b2Instance.uploadAndInsertB2File({
-          bufferToUpload: Buffer.from('Text Content !!'),
-          fileName: 'test3.txt',
-          pathToFile: 'migration-folder',
-          originalName: 'original.name3.txt'
-        })
-      ])
-    )
+    await Promise.all([
+      b2Instance.uploadAndInsertB2File({
+        bufferToUpload: Buffer.from('Text Content !!'),
+        fileName: 'test1.txt',
+        pathToFile: 'migration-folder',
+        originalName: 'original.name1.txt'
+      }),
+      b2Instance.uploadAndInsertB2File({
+        bufferToUpload: Buffer.from('Text Content !!'),
+        fileName: 'test2.txt',
+        pathToFile: 'migration-folder',
+        originalName: 'original.name2.txt'
+      }),
+      b2Instance.uploadAndInsertB2File({
+        bufferToUpload: Buffer.from('Text Content !!'),
+        fileName: 'test3.txt',
+        pathToFile: 'migration-folder',
+        originalName: 'original.name3.txt'
+      })
+    ])
+    console.log('Uploaded all 3 test files')
     // List all files uploaded
     const beforeMove = await b2Instance.listFilesOnBucket({
       limit: 1000
@@ -192,6 +190,7 @@ test.group('Backblaze Integration Tests', group => {
     should(beforeMove.files[0].fileName).not.be.empty()
 
     const migration = await b2Instance.migrateFilesFromToken({
+      deleteOldFiles: true,
       from: configWithSlash,
       to: configWithoutSlash
     })
@@ -201,7 +200,7 @@ test.group('Backblaze Integration Tests', group => {
       limit: 1000
     })
     should(afterMove.files).be.not.null()
-    should(afterMove.files.length).be.equal(6)
+    should(afterMove.files.length).be.equal(3)
     should(afterMove.files[0]).not.be.empty()
     await emptyBucket(b2Instance, configWithoutSlash)
   })
