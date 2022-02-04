@@ -9,10 +9,12 @@ async function emptyBucket(b2service, backblazeConfig, opts = { limit: 1000, pre
     limit,
     prefix
   })
-
-  for (const oldFile of oldRequest.files) {
-    await b2service.deleteB2Object(oldFile)
+  let totalDeleted = 0
+  for (const id in oldRequest.files) {
+    const deleted = await b2service.deleteB2Object(oldRequest.files[id])
+    totalDeleted++
   }
+  console.log('Empty bucket files total:', totalDeleted)
 }
 module.exports = {
   emptyBucket

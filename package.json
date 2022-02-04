@@ -5,11 +5,11 @@
   "main": "instructions.js",
   "author": "@ks-labs",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "directories": {
     "example": "example"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "config": {
     "commitizen": {

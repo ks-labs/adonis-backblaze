@@ -404,13 +404,8 @@ class B2Service {
     return migratedFiles
   }
   async deleteB2Object({ fileId, fileName }) {
-    if (!this._b2Options.dummy) {
-      return {
-        data: {
-          fileId: fileId,
-          fileName: fileName
-        }
-      }
+    if (this._b2Options.dummy) {
+      return arguments[0]
     }
     return this.b2.deleteFileVersion({
       fileId,

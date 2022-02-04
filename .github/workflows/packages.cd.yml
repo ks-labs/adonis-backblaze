@@ -9,17 +9,24 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
+  B2_BUCKET_ID: ${{ secrets.B2_BUCKET_ID }}
+
+  B2_APP_KEY: ${{ secrets.B2_APP_KEY }}
+  B2_APP_KEY_ID: ${{ secrets.B2_APP_KEY_ID }}
+  B2_APP_KEY_NAME: ${{ secrets.B2_APP_KEY_NAME }}
+  B2_APP_KEY_PREFIX: ${{ secrets.B2_APP_KEY_PREFIX }}
+
+  OLD_B2_APP_KEY: ${{ secrets.OLD_B2_APP_KEY }}
+  OLD_B2_APP_KEY_ID: ${{ secrets.OLD_B2_APP_KEY_ID }}
+  OLD_B2_APP_KEY_NAME: ${{ secrets.OLD_B2_APP_KEY_NAME }}
+  OLD_B2_APP_KEY_PREFIX: ${{ secrets.OLD_B2_APP_KEY_PREFIX }}
+
 jobs:
   test:
     name: 'Install and test package'
     runs-on: ubuntu-latest
-    env:
-      B2_BUCKET_NAME: ${{ secrets.B2_BUCKET_NAME }}
-      B2_BUCKET_ID: ${{ secrets.B2_BUCKET_ID }}
-      B2_APP_KEY_ID: ${{ secrets.B2_APP_KEY_ID }}
-      B2_APP_KEY_NAME: ${{ secrets.B2_APP_KEY_NAME }}
-      B2_APP_KEY: ${{ secrets.B2_APP_KEY }}
-      B2_APP_KEY_PREFIX: ${{ secrets.B2_APP_KEY_PREFIX }}
     strategy:
       matrix:
         node-version: [14.15.4]
