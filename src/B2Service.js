@@ -59,7 +59,7 @@ class B2Service {
     })
   }
 
-  async _changeConfig(newConfig) {
+  async changeConfig(newConfig) {
     this._b2Options = _.merge(this._b2Options, newConfig)
     await this.recreateB2Instance()
     return await this.authorize()
@@ -225,27 +225,31 @@ class B2Service {
    * @param  {Object} opts
    * @param  {string} opts.b2FileId
    * @param  {string} opts.optionalNewName
-   * @param  {string} opts.newFilePath
-   * @param  {Object} opts.changeConfig
-   * @param  {Object} opts.changeConfig.from
-   * @param  {Object} opts.changeConfig.to
-   * @param  {string} opts.changeConfig.to.blazeAppKeyID
-   * @param  {string} opts.changeConfig.to.blazeAppKey
-   * @param  {string} opts.changeConfig.to.blazeBucketID
-   * @param  {string} opts.changeConfig.to.blazeAppKeyPrefix
+   * @param  {string} opts.replacePath
+   * @param  {Object} opts.credentials
+   * @param  {Object} opts.credentials.from
+   * @param  {string} opts.credentials.from.blazeAppKeyID
+   * @param  {string} opts.credentials.from.blazeAppKey
+   * @param  {string} opts.credentials.from.blazeBucketID
+   * @param  {string} opts.credentials.from.blazeAppKeyPrefix
+   * @param  {Object} opts.credentials.to
+   * @param  {string} opts.credentials.to.blazeAppKeyID
+   * @param  {string} opts.credentials.to.blazeAppKey
+   * @param  {string} opts.credentials.to.blazeBucketID
+   * @param  {string} opts.credentials.to.blazeAppKeyPrefix
    * @returns {Promise<StandardApiResponse> } - new backblaze file details
    */
   async moveFileByFileId(opts = {}) {
     const {
       originFileId = null,
       optionalNewName = null,
-      newFilePath = null,
+      replacePath = null,
       deleteOldFile = false,
-      changeConfig = null
+      credentials = null
     } = opts
     if (!this._b2Options.dummy) {
-      const hasFromConfig = opts.changeConfig && opts.changeConfig.from
-      if (hasFromConfig) await this._changeConfig(opts.changeConfig.from)
+      const hasFromConfig = opts.credentials && opts.credentials.from
+      if (hasFromConfig) await this.changeConfig(opts.credentials.from)
 
       const fileInfo = await this.b2.getFileInfo({
         fileId: originFileId
@@ -262,13 +266,13 @@ class B2Service {
         responseType: 'arraybuffer'
       })
       if (hasFromConfig) await this._loadDefaultConfig() // restore settings
-      const changedToConfig = opts.changeConfig && opts.changeConfig.to
+      const changedToConfig = opts.credentials && opts.credentials.to
 
-      if (changedToConfig) await this._changeConfig(opts.changeConfig.to)
+      if (changedToConfig) await this.changeConfig(opts.credentials.to)
 
       const fileCreated = await this.uploadBufferToBackBlaze({
         fileName,
-        pathToFile: opts.newFilePath,
+        pathToFile: opts.replacePath,
         bufferToUpload: response.data,
         originalName
       })
@@ -279,7 +283,7 @@ class B2Service {
         throw new SHA1MismatchException()
       } else {
         if (deleteOldFile) {
-          await this._changeConfig(opts.changeConfig.from)
+          await this.changeConfig(opts.credentials.from)
           await this.deleteB2Object(originObject)
         }
       }
@@ -315,7 +319,7 @@ class B2Service {
         from.blazeAppKey.substr(from.blazeAppKey.length - 7, from.blazeAppKey.length - 1) +
         '-old'
     )
-    await this._changeConfig(from)
+    await this.changeConfig(from)
     const oldRequest = await this.listFilesOnBucket({
       limit
     })
@@ -353,7 +357,7 @@ class B2Service {
     console.log('[LOG] All files downloaded with success')
     console.log('[LOG] Changing to new token and uploading:')
 
-    await this._changeConfig(to)
+    await this.changeConfig(to)
     for (const id in migratedFiles) {
       try {
         let downloaded = migratedFiles[id]
@@ -389,7 +393,7 @@ class B2Service {
     console.log('[LOG] All files migrated with success')
     if (deleteOldFile) {
       console.log('[LOG] Changing to old token and deleting old files:')
-      await this._changeConfig(opts.from)
+      await this.changeConfig(opts.from)
       if (!hasError) {
         for (const migrate of migratedFiles) {
           totalMigrated++
