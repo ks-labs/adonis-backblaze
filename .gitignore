@@ -114,3 +114,4 @@ dist
 
 # Enviroment file
 *.env
+test/tmp/**
