@@ -3,6 +3,10 @@ const _ = require('lodash')
 ;('use strict')
 
 class FakeModel {
+  static find() {
+    return new FakeModel()
+  }
+
   static create(args) {
     const newInstance = new FakeModel()
     for (const key in args) {

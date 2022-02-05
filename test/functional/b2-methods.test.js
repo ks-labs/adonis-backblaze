@@ -147,7 +147,7 @@ test.group('Backblaze Integration Tests', group => {
 
     await clearBucket(b2Singleton)
 
-    await Promise.all([
+    const uploadedFiles = await Promise.all([
       b2Singleton.uploadAndInsertB2File({
         bufferToUpload: Buffer.from('Text Content !!'),
         fileName: 'test1.txt',
@@ -172,12 +172,13 @@ test.group('Backblaze Integration Tests', group => {
     const beforeMove = await b2Singleton.listFilesOnBucket({
       limit: 1000
     })
-    t.isNotNull(beforeMove.files)
+    t.isNotEmpty(beforeMove.files)
     t.equal(beforeMove.files.length, 3)
-    t.isNotEmpty(beforeMove.files[0].fileName)
+    t.equal(uploadedFiles[0].fileName, '/slash-prefix/migration-folder/test1.txt')
 
-    const migration = await b2Singleton.migrateFilesFromToken({
+    const migration = await b2Singleton.migrateTokenAndDatabaseNames({
       deleteOldFiles: true,
+      updateDBModels: true,
       from: cfgWithSlashPrefix,
       to: cfgWithoutSlash
     })
@@ -187,9 +188,9 @@ test.group('Backblaze Integration Tests', group => {
       prefix: 'migration-folder',
       limit: 1000
     })
-    t.isNotNull(afterMove.files)
-    t.equal(afterMove.files.length, 3)
     t.isNotEmpty(afterMove.files)
+    t.equal(afterMove.files.length, 3)
+    t.equal(afterMove.files[0].fileName, 'provider-files/migration-folder/test1.txt')
     await clearBucket(b2Singleton, cfgWithoutSlash)
   })
 })

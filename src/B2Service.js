@@ -7,7 +7,7 @@ const fs = require('fs')
 // read stream as buffers
 
 const { readFileSync, fstat } = require('fs')
-const { posix } = require('path')
+const { posix, format } = require('path')
 const path = require('path')
 const md5 = require('md5')
 const NE = require('node-exceptions')
@@ -15,7 +15,7 @@ const { Config, Helpers } = require('@adonisjs/sink')
 
 const _ = require('lodash')
 
-/** @type {typeof import('../Models/B2File')} */
+/** @type {typeof import('../templates/B2File')} */
 const B2File = use('App/Models/B2File')
 
 class B2Service {
@@ -307,8 +307,14 @@ class B2Service {
    * @param  {string} opts.to.blazeAppKeyPrefix
    * @returns {Promise<StandardApiResponse> } - new backblaze file details
    */
-  async migrateFilesFromToken(opts = {}) {
-    const { to = null, from = null, limit = 100, deleteOldFile = false } = opts
+  async migrateTokenAndDatabaseNames(opts = {}) {
+    const {
+      from = null,
+      to = null,
+      limit = 100,
+      updateDBModels = false,
+      deleteOldFile = false
+    } = opts
     if (this._b2Options.dummy) throw new Error('Dummy mode is not supported for this method')
 
     if (!from) throw new Error('from config is required')
@@ -370,8 +376,17 @@ class B2Service {
           oldRequest?.files?.length ?? 0,
           'files total'
         )
+        let uploadName = downloaded.old.info.fileName
+        if (
+          from.blazeAppKeyPrefix &&
+          from.blazeAppKeyPrefix.length > 0 &&
+          from.blazeAppKeyPrefix !== to.blazeAppKeyPrefix
+        ) {
+          // remove the old prefix from the file name
+          uploadName = uploadName.split(from.blazeAppKeyPrefix).join('')
+        }
         const fileCreated = await this.uploadBufferToBackBlaze({
-          fileName: downloaded.old.info.fileName,
+          fileName: uploadName,
           bufferToUpload: fs.readFileSync(downloaded.old.tmpPath),
           info: downloaded.old.info.info
         })
@@ -412,11 +427,26 @@ class B2Service {
         console.log('[WARN] (nothing will be deleted)')
       }
     }
+    // update all database entries
+    if (updateDBModels) {
+      for (const migrated of migratedFiles) {
+        if (migrated.error) {
+          const oldB2File = await B2File.find({
+            contentSha1: migrated.old.info.contentSha1,
+            fileId: migrated.old.info.fileId
+          })
 
+          const newB2File = B2File.fromBBlazeToB2File(migrated.new)
+          await oldB2File.merge(newB2File)
+          await oldB2File.save()
+        }
+      }
+    }
     // restore default settings
     await this._loadDefaultConfig()
     return migratedFiles
   }
+
   async deleteB2Object({ fileId, fileName }) {
     if (this._b2Options.dummy) {
       return arguments[0]
