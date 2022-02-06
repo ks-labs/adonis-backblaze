@@ -1,14 +1,27 @@
 # Changelog
 
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [2.3.2](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.1...v2.3.2) (2022-02-06)
+
+### Fixed
+
+- 🐛 fix(provider): change typedef import of @adonisjs/sync, to avoid errors on production install [[f99dfe8](https://github.com/ks-labs/adonis-backblaze/commit/f99dfe832f1f02c9e8bd3830fe66d48315e39a90)]
+
+<a name="2.3.1"></a>
+
 ## 2.3.1 (2022-02-06)
 
 ### Fixed
 
-- 🐛 fix(provider): remove wrong `;('use strict')` flag, move devDep to dependencies due error on user [[cd982e0](https://github.com/ks-labs/adonis-backblaze/commit/cd982e0b69141ae548176fcf18a757444b6890d5)]
+- 🐛 fix(provider): remove wrong &#x60;;(&#x27;use strict&#x27;)&#x60; flag, move devDep to dependecies due error on user [[cd982e0](https://github.com/ks-labs/adonis-backblaze/commit/cd982e0b69141ae548176fcf18a757444b6890d5)]
 
 ### Miscellaneous
 
+- chore(release): 2.3.1 [[24b261e](https://github.com/ks-labs/adonis-backblaze/commit/24b261ef117a2f15638e1d65a66e6bc1df78ff54)]
 - 📝 docs(token-migrate): add token migration to the docs with short explanation [[1918a8f](https://github.com/ks-labs/adonis-backblaze/commit/1918a8fd62db07f59b548e1aa53b75969445e6b4)]
+
+<a name="2.3.0"></a>
 
 ## 2.3.0 (2022-02-05)
 
@@ -19,6 +32,8 @@
 ### Changed
 
 - 📌 chore(release): 2.3.0 [[fb4cac1](https://github.com/ks-labs/adonis-backblaze/commit/fb4cac15c43242a31cd73a9b1f8e56d2fb438590)]
+
+<a name="2.2.0"></a>
 
 ## 2.2.0 (2022-02-04)
 
@@ -41,6 +56,8 @@
 - chore(release): 2.2.0 [[fb3b9e2](https://github.com/ks-labs/adonis-backblaze/commit/fb3b9e21d32ea32fccd244c6e21e43bdfb5bfbbc)]
 - chore(release): 2.1.0 [[05a8c34](https://github.com/ks-labs/adonis-backblaze/commit/05a8c34666f7fd69145771226e4fbb30e5ad6aae)]
 - feat: add method to allow move files [[3790339](https://github.com/ks-labs/adonis-backblaze/commit/3790339b35fd88e187a6f50630c810adcdc40f4e)]
+
+<a name="2.0.0"></a>
 
 ## 2.0.0 (2022-01-20)
 
