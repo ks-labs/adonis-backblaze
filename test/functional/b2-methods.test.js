@@ -9,7 +9,7 @@ const { emptyBucket: clearBucket } = require('../setup/helpers')
 test.group('Backblaze Integration Tests', group => {
   let cfgWithSlashPrefix
   let cfgWithoutSlash
-  /** @type {import('../../src/B2Service')} B2Service*/
+  /** @type {import('../../src/B2Service')} B2Service */
   let b2Singleton
   group.before(async () => {
     const setup = require('../setup')
@@ -73,7 +73,7 @@ test.group('Backblaze Integration Tests', group => {
     await b2Singleton.changeConfig(cfgWithoutSlash)
     await b2Singleton.authorize()
 
-    const entityCreated = await b2Singleton.uploadAndInsertB2File({
+    await b2Singleton.uploadAndInsertB2File({
       bufferToUpload: Buffer.from('File Content !!'),
       fileName: 'test.txt',
       pathToFile: 'custom-folder',
@@ -104,7 +104,7 @@ test.group('Backblaze Integration Tests', group => {
   test('Move file to different app token and prefix', async t => {
     await clearBucket(b2Singleton)
     await b2Singleton.changeConfig(cfgWithSlashPrefix)
-    const slashedObject = await b2Singleton.uploadAndInsertB2File({
+    await b2Singleton.uploadAndInsertB2File({
       bufferToUpload: Buffer.from('Text Content !!'),
       fileName: 'test.txt',
       pathToFile: 'move-file',
@@ -176,7 +176,7 @@ test.group('Backblaze Integration Tests', group => {
     t.equal(beforeMove.files.length, 3)
     t.equal(uploadedFiles[0].fileName, '/slash-prefix/migration-folder/test1.txt')
 
-    const migration = await b2Singleton.migrateTokenAndDatabaseNames({
+    await b2Singleton.migrateTokenAndDatabaseNames({
       deleteOldFiles: true,
       updateDBModels: true,
       from: cfgWithSlashPrefix,

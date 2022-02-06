@@ -1,6 +1,9 @@
 # .npmignore
 node_modules
 test
-.nyc_output
 bin
 .github
+.vscode
+.nyc_output
+.husky
+**/*.env

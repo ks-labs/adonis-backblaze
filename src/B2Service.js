@@ -7,7 +7,10 @@ const { posix } = require('path')
 const path = require('path')
 const md5 = require('md5')
 const NE = require('node-exceptions')
-const { Config, Helpers } = require('@adonisjs/sink')
+
+/** @typedef {import('@adonisjs/sink').Helpers} Helpers */
+/** @typedef {import('@adonisjs/sink').Config} Config */
+/** @typedef {import('@adonisjs/sink')} Sink */
 
 const _ = require('lodash')
 
