@@ -1,14 +1,4 @@
 'use strict'
-
-/**
- * adonis-bumblebee
- *
- * (c) Ralph Huwiler <ralph@huwiler.rocks>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 const path = require('path')
 
 module.exports = async cli => {
@@ -40,15 +30,9 @@ module.exports = async cli => {
   try {
     await cli.copy(
       path.join(__dirname, './templates/1607035890123_b_2_file_schema.js'),
-      path.join(
-        cli.Helpers.migrationsPath(),
-        '1607035890123_b_2_file_schema.js'
-      )
+      path.join(cli.Helpers.migrationsPath(), '1607035890123_b_2_file_schema.js')
     )
-    await cli.command.completed(
-      'create',
-      'migrations/1607035890123_b_2_file_schema.js'
-    )
+    await cli.command.completed('create', 'migrations/1607035890123_b_2_file_schema.js')
   } catch (error) {
     // ignore error
     await cli.command.info(

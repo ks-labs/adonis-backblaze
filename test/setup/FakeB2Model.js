@@ -1,6 +1,6 @@
-const _ = require('lodash')
+'use strict'
 
-;('use strict')
+const _ = require('lodash')
 
 class FakeModel {
   static find() {

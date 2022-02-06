@@ -1,13 +1,9 @@
-const fs = require('fs')
-
-;('use-strict')
-
-/** @typedef {import('@adonisjs/bodyparser/src/Multipart/File')} File */
+'use-strict'
 
 // read stream as buffers
-
-const { readFileSync, fstat } = require('fs')
-const { posix, format } = require('path')
+const fs = require('fs')
+const { readFileSync } = require('fs')
+const { posix } = require('path')
 const path = require('path')
 const md5 = require('md5')
 const NE = require('node-exceptions')
@@ -18,6 +14,7 @@ const _ = require('lodash')
 /** @type {typeof import('../templates/B2File')} */
 const B2File = use('App/Models/B2File')
 
+/** @typedef {import('@adonisjs/bodyparser/src/Multipart/File')} File */
 class B2Service {
   /**
    * @param  {Config} ConfigInstance
@@ -26,7 +23,7 @@ class B2Service {
   constructor(ConfigInstance, Helpers) {
     /** @type {Config} */
     this.ConfigInstance = ConfigInstance
-    /** @type {import('@adonisjs/sink').Helpers} */
+    /** @type {Helpers} */
     this._helpers = Helpers
     this._loadDefaultConfig()
   }
