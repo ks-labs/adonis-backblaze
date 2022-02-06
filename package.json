@@ -1,6 +1,6 @@
 {
   "name": "@ks-labs/adonis-backblaze",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Adonis Provider for BackBlaze Cloud Storage",
   "main": "instructions.js",
   "author": "@ks-labs",
@@ -24,6 +24,7 @@
     "coverage": "nyc npm run test:local",
     "posttest": "echo posttest",
     "cm": "cz",
+    "changemoji": "npx gitmoji-changelog",
     "release": "standard-version",
     "release:minor": "standard-version --release-as minor",
     "release:patch": "standard-version --release-as patch",
@@ -38,6 +39,7 @@
     "cz-customizable": "^6.3.0",
     "dotenv": "^14.2.0",
     "eslint": "^8.4.1",
+    "gitmoji-changelog": "^2.3.0",
     "husky": "^7.0.0",
     "japa": "^4.0.0",
     "lodash": "^4.17.21",
