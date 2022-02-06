@@ -56,6 +56,45 @@ You can manipulate the backblaze entries references like this
 const B2File = use('App/Models/B2File')
 ```
 
+### Migrate from different token/bucket
+
+yes, you can move entire files created from one bucket to another,
+this can be achieved by calling the following method
+
+```js
+// migrating from one appkey to another
+const migration = await b2Singleton.migrateTokenAndDatabaseNames({
+  // when true and all files moved with success old files versions will be deleted
+  deleteOldFiles: true,
+  // when true and all files moved with success the database entries will be updated with new reference
+  updateDBModels: true,
+  from: cfgWithSlashPrefix, // where come from
+  to: cfgWithoutSlash // where will be moved to
+})
+
+// two configs follows the same schema
+const configSchema = {
+  blazeAppKey: process.env.B2_APP_KEY,
+  blazeAppKeyID: process.env.B2_APP_KEY_ID,
+  blazeAppKeyName: process.env.B2_APP_KEY_NAME,
+  blazeAppKeyPrefix: process.env.B2_APP_KEY_PREFIX
+}
+
+// and will produce something like this
+// during migration
+
+[LOG] Total old files to migrate: 3
+[LOG] Downloading 1 of 3 old files
+[LOG] Downloading 2 of 3 old files
+[LOG] Downloading 3 of 3 old files
+[LOG] All files downloaded with success
+[LOG] Changing to new token and uploading:
+[LOG] Uploading remaining 3 of 3 files total
+[LOG] Uploading remaining 2 of 3 files total
+[LOG] Uploading remaining 1 of 3 files total
+[LOG] All files migrated with success
+```
+
 ## Thanks
 
 Special thanks to the creator(s) of [AdonisJS](http://adonisjs.com/) for creating such a great framework.
