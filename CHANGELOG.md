@@ -2,11 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [2.3.2](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.1...v2.3.2) (2022-02-06)
+## [2.3.3](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.2...v2.3.3) (2022-02-07)
 
 ### Fixed
 
 - 🐛 fix(provider): change typedef import of @adonisjs/sync, to avoid errors on production install [[f99dfe8](https://github.com/ks-labs/adonis-backblaze/commit/f99dfe832f1f02c9e8bd3830fe66d48315e39a90)]
+
+## [2.3.2](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.1...v2.3.2) (2022-02-06)
+
+### Fixed
+
+- 🐛 fix(provider): change type import, to avoid errors on production install [[f99dfe8](https://github.com/ks-labs/adonis-backblaze/commit/f99dfe832f1f02c9e8bd3830fe66d48315e39a90)]
+
+### Miscellaneous
+
+- chore(release): 2.3.2 [[be0f6c9](https://github.com/ks-labs/adonis-backblaze/commit/be0f6c9f32b66c3edf2dc7013842e77b071c06fc)]
 
 <a name="2.3.1"></a>
 
