@@ -31,8 +31,8 @@ class B2Service {
   async _loadDefaultConfig() {
     this._b2Options = {
       dummy: undefined,
-      blazeAppKeyID: undefined,
       blazeAppKey: undefined,
+      blazeAppKeyID: undefined,
       blazeBucketID: undefined,
       blazeAppKeyPrefix: undefined,
       defaultDownloadTime: undefined,
@@ -40,6 +40,9 @@ class B2Service {
     }
     // Load Envs
     this._b2Options = this.ConfigInstance.merge('b2-provider', this._b2Options)
+    if (!this._b2Options.blazeAppKey) {
+      throw new Error('Invalid Backblaze "blazeAppKey" when load config file.')
+    }
     await this.recreateB2Instance()
   }
 
