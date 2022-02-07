@@ -2,17 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [2.3.6](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.5...v2.3.6) (2022-02-07)
+<a name="2.3.7"></a>
+
+## [2.3.7](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.5...v2.3.7) (2022-02-07)
+
+### Added
+
+- ✨ feat(settings): add exception when cant load settings &#x60;b2-provider&#x60; appkey [[df0d932](https://github.com/ks-labs/adonis-backblaze/commit/df0d932a956a9acf3617591f558cc224e74737ab)]
+
+### Fixed
+
+- 🐛 fix(settings): fix settings load namespace to use &#x60;b2-provider&#x60; path and update template config [[e2b12cf](https://github.com/ks-labs/adonis-backblaze/commit/e2b12cfdc5d8fac3282ff18b6f886eede1641687)]
+
+<a name="2.3.6"></a>
+
+## [2.3.6](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.5...v2.3.6) (2022-02-07)
 
 ### Added
 
 - ✅ test(fix): fix tests, that are using old provider namespace [[4221f39](https://github.com/ks-labs/adonis-backblaze/commit/4221f39addf645226b05195cf6d2ff5cc211b734)]
 
-<a name="2.3.5"></a>
+### Changed
+
+- 📌 chore(release): 2.3.6 [[d2c04c8](https://github.com/ks-labs/adonis-backblaze/commit/d2c04c808758759477c6f1916e507d9cd4ea1b51)]
 
 ### Breaking changes
 
 - 💥 fix: change provider namespace to AdonisB2 avoiding breaking changes from past releases [[177dfa6](https://github.com/ks-labs/adonis-backblaze/commit/177dfa69658ce717007c6f22df75252267308814)]
+
+<a name="2.3.5"></a>
 
 ## 2.3.5 (2022-02-07)
 
