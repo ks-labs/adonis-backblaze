@@ -53,6 +53,7 @@
   "dependencies": {
     "@adonisjs/fold": "^4.1.0",
     "backblaze-b2": "^1.7.0",
+    "hasha": "^5.2.2",
     "macroable": "^4.0.2",
     "md5": "^2.3.0",
     "node-exceptions": "^4.0.1"

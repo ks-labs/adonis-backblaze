@@ -137,7 +137,7 @@ test.group('Backblaze Integration Tests', group => {
     await clearBucket(b2Singleton)
   })
 
-  test('Move all files from one app token to another', async t => {
+  test.only('Move all files from one app token to another', async t => {
     await b2Singleton.changeConfig(cfgWithSlashPrefix)
 
     await clearBucket(b2Singleton)

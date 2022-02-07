@@ -61,6 +61,8 @@ const B2File = use('App/Models/B2File')
 yes, you can move entire files created from one bucket to another,
 this can be achieved by calling the following method
 
+- Allready Downloaded files will be skipped if match same SHA-1 from BackBlaze
+
 ```js
 // migrating from one appkey to another
 const migration = await b2Singleton.migrateTokenAndDatabaseNames({

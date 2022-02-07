@@ -7,6 +7,7 @@ const { posix } = require('path')
 const path = require('path')
 const md5 = require('md5')
 const NE = require('node-exceptions')
+const { fromFileSync } = require('hasha')
 
 /** @typedef {import('@adonisjs/sink')} Sink */
 
@@ -298,7 +299,7 @@ class B2Service {
    * @param  {Object} opts
    * @param  {boolean} opts.updateDBModels - if true, will update the database models with the new file info
    * @param  {boolean} opts.deleteOldFile - delete the old file after success migration
-   * @param  {number} opts.limit - limit of files to migrate 1000 is default
+   * @param  {number} opts.limit - limit of files to migrate 10000 is default max is 10000
    * @param  {Object} opts.from
    * @param  {Object} opts.from.blazeAppKeyPrefix
    * @param  {Object} opts.from.blazeAppKey
@@ -315,7 +316,7 @@ class B2Service {
     const {
       from = null,
       to = null,
-      limit = 1000,
+      limit = 10000,
       updateDBModels = false,
       deleteOldFile = false
     } = opts
@@ -337,32 +338,58 @@ class B2Service {
 
     let totalMigrated = 0
     for (const oldFile of oldRequest.files) {
-      const downloaded = await this.b2.downloadFileById({
-        fileId: oldFile.fileId,
-        responseType: 'arraybuffer'
-      })
-      totalMigrated++
-      console.log(
-        '[LOG] Downloading',
-        totalMigrated,
-        'of',
-        oldRequest?.files?.length ?? 0,
-        'old files'
-      )
-      const oldFilePath = path.join(oldFilesTmp, oldFile.fileName)
-
-      fs.mkdirSync(path.parse(oldFilePath).dir, {
-        recursive: true
-      })
-      await fs.writeFileSync(oldFilePath, downloaded.data)
+      let hasFileCache = false
+      const tmpFilePath = path.join(oldFilesTmp, oldFile.fileName)
+      try {
+        fs.accessSync(tmpFilePath, fs.constants.R_OK | fs.constants.W_OK)
+        const sha1 = fromFileSync(tmpFilePath, {
+          algorithm: 'sha1',
+          encoding: 'hex'
+        })
+        hasFileCache = sha1 === oldFile.contentSha1
+      } catch (err) {
+        console.error('no access!', tmpFilePath)
+      }
+      if (hasFileCache) {
+        console.log('[LOG] skipping allready downloaded:', oldFile.fileId, oldFile.fileName)
+      } else {
+        const downloaded = await this.b2.downloadFileById({
+          fileId: oldFile.fileId,
+          responseType: 'arraybuffer'
+        })
+        console.log(
+          '[LOG] Downloading',
+          totalMigrated,
+          'of',
+          oldRequest?.files?.length ?? 0,
+          'old files'
+        )
+        try {
+          fs.mkdirSync(path.parse(tmpFilePath).dir, {
+            recursive: true
+          })
+        } catch (e) {
+          if (e.code !== 'EEXIST') {
+            throw e
+          }
+        }
+        try {
+          await fs.writeFileSync(tmpFilePath, downloaded.data)
+        } catch (e) {
+          if (e.code !== 'EEXIST') {
+            throw e
+          }
+        }
+      }
 
       migratedFiles.push({
         old: {
           info: oldFile,
-          tmpPath: oldFilePath
+          tmpFilePath
         },
         new: {}
       })
+      totalMigrated++
     }
     console.log('[LOG] All files downloaded with success')
     console.log('[LOG] Changing to new token and uploading:')
@@ -391,7 +418,7 @@ class B2Service {
         }
         const fileCreated = await this.uploadBufferToBackBlaze({
           fileName: uploadName,
-          bufferToUpload: fs.readFileSync(downloaded.old.tmpPath),
+          bufferToUpload: fs.readFileSync(downloaded.old.tmpFilePath),
           info: downloaded.old.info.info
         })
         migratedFiles[id].new.info = fileCreated?.data
@@ -433,30 +460,40 @@ class B2Service {
     }
     // update all database entries
     if (updateDBModels) {
-      for (const idx in migratedFiles) {
-        let migrated = migratedFiles[idx]
-        if (!migrated.error) {
+      for (const id in migratedFiles) {
+        let migrated = migratedFiles[id]
+        if (migrated.error) {
+          console.warn('Skip because has error:', migrated.old.info.fileName)
+        } else {
           /** @type {typeof import('../templates/B2File')} */
           const B2File = use('App/Models/B2File')
           const b2Model = await B2File.findBy('fileId', migrated.old.info.fileId)
-
+          if (!b2Model) {
+            const allreadyFound = await B2File.findBy('fileId', migrated.new.info.fileId)
+            if (allreadyFound) {
+              console.log('[LOG] model allready migrated fileId', migrated.new.info.fileId)
+            } else {
+              console.warn('[WARN] model not found fileId', migrated.old.info.fileId)
+            }
+            continue
+          }
           const newB2File = B2File.fromBBlazeToB2File(migrated.new.info)
           await b2Model.merge(newB2File)
           await b2Model.save()
-          console.warn(
-            'Updated B2 Model:',
+          migratedFiles[id].model = b2Model // save model reference to return
+          console.log(
+            '[LOG] Updated B2 Model:',
             migrated.old.info.fileName,
             'to',
             migrated.new.info.fileName
           )
-          migratedFiles[idx].model = b2Model // save model reference to return
-        } else {
-          console.warn('Skipping with error:', migrated.old.info.fileName)
         }
       }
     }
     // restore default settings
+    console.log('[LOG] Restoring singleton config')
     await this._loadDefaultConfig()
+    console.log('[LOG] Migration process finished')
     return migratedFiles
   }
 
