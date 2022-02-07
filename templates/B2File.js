@@ -7,10 +7,8 @@ class B2File extends Model {
   static async createFromBackBlaze(backBlazeObject) {
     return B2File.create(B2File.fromBBlazeToB2File(backBlazeObject))
   }
-
-  static fromBBlazeToB2File(object) {
+  static fromBBlazeToB2File(b2UploadObject) {
     const {
-      id = null,
       file_password = null,
       client_file_name = null,
       accountId = null,
@@ -23,12 +21,9 @@ class B2File extends Model {
       fileId = null,
       fileInfo = null,
       fileName = null,
-      uploadTimestamp = null,
-      created_at = null,
-      updated_at = null
-    } = object
+      uploadTimestamp = null
+    } = b2UploadObject
     return {
-      id,
       file_password,
       client_file_name,
       accountId,
@@ -41,9 +36,7 @@ class B2File extends Model {
       fileId,
       fileInfo,
       fileName,
-      uploadTimestamp,
-      created_at,
-      updated_at
+      uploadTimestamp
     }
   }
 }

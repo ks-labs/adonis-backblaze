@@ -433,18 +433,25 @@ class B2Service {
     }
     // update all database entries
     if (updateDBModels) {
-      for (const migrated of migratedFiles) {
-        if (migrated.error) {
+      for (const idx in migratedFiles) {
+        let migrated = migratedFiles[idx]
+        if (!migrated.error) {
           /** @type {typeof import('../templates/B2File')} */
           const B2File = use('App/Models/B2File')
-          const oldB2File = await B2File.find({
-            contentSha1: migrated.old.info.contentSha1,
-            fileId: migrated.old.info.fileId
-          })
+          const b2Model = await B2File.findBy('fileId', migrated.old.info.fileId)
 
-          const newB2File = B2File.fromBBlazeToB2File(migrated.new)
-          await oldB2File.merge(newB2File)
-          await oldB2File.save()
+          const newB2File = B2File.fromBBlazeToB2File(migrated.new.info)
+          await b2Model.merge(newB2File)
+          await b2Model.save()
+          console.warn(
+            'Updated B2 Model:',
+            migrated.old.info.fileName,
+            'to',
+            migrated.new.info.fileName
+          )
+          migratedFiles[idx].model = b2Model.toJSON() // save model reference to return
+        } else {
+          console.warn('Skipping with error:', migrated.old.info.fileName)
         }
       }
     }
