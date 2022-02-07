@@ -2,17 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="2.3.5"></a>
-
-## 2.3.5 (2022-02-07)
+### [2.3.6](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.5...v2.3.6) (2022-02-07)
 
 ### Added
 
 - ✅ test(fix): fix tests, that are using old provider namespace [[4221f39](https://github.com/ks-labs/adonis-backblaze/commit/4221f39addf645226b05195cf6d2ff5cc211b734)]
 
+<a name="2.3.5"></a>
+
+### Breaking changes
+
+- 💥 fix: change provider namespace to AdonisB2 avoiding breaking changes from past releases [[177dfa6](https://github.com/ks-labs/adonis-backblaze/commit/177dfa69658ce717007c6f22df75252267308814)]
+
+## 2.3.5 (2022-02-07)
+
 ### Changed
 
-- 📌 chore(release): 2.3.5 [[d1fd428](https://github.com/ks-labs/adonis-backblaze/commit/d1fd4280d9987ef7d8cb21afbc0eccbebb7d6df9)]
+- 📌 chore(release): 2.3.5 [[089d403](https://github.com/ks-labs/adonis-backblaze/commit/089d403770117cb155efd9fe289925100cb081a0)]
 
 <a name="2.3.4"></a>
 
