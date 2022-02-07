@@ -296,8 +296,9 @@ class B2Service {
   }
   /**
    * @param  {Object} opts
-   * @param  {Object} opts.deleteOldFile - delete the old file after success migration
-   * @param  {Object} opts.limit - limit of files to migrate 100 is default
+   * @param  {boolean} opts.updateDBModels - if true, will update the database models with the new file info
+   * @param  {boolean} opts.deleteOldFile - delete the old file after success migration
+   * @param  {number} opts.limit - limit of files to migrate 1000 is default
    * @param  {Object} opts.from
    * @param  {Object} opts.from.blazeAppKeyPrefix
    * @param  {Object} opts.from.blazeAppKey
@@ -314,7 +315,7 @@ class B2Service {
     const {
       from = null,
       to = null,
-      limit = 100,
+      limit = 1000,
       updateDBModels = false,
       deleteOldFile = false
     } = opts
