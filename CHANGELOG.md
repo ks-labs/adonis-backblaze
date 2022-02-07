@@ -1,9 +1,18 @@
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="2.3.9"></a>
+
+## [2.3.9](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.8...v2.3.9) (2022-02-07)
+
+### Added
+
+- ✨ feat(token-migration): added support to skip allready downloaded files [[5945be3](https://github.com/ks-labs/adonis-backblaze/commit/5945be3f269180c83735cbc2fcef10645b1159a0)]
+
 <a name="2.3.8"></a>
 
-### [2.3.8](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.7...v2.3.8) (2022-02-07)
+## [2.3.8](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.7...v2.3.8) (2022-02-07)
 
 ### Fixed
 
