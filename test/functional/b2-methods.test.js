@@ -41,7 +41,7 @@ test.group('Backblaze Integration Tests', group => {
 
   test('B2Provider', async t => {
     t.isDefined(ioc.use('BackBlaze'))
-    t.isTrue(ioc._bindings.AdonisB2.singleton)
+    t.isTrue(ioc._bindings.BackBlaze.singleton)
   })
 
   test('B2Config Loaded Correctly', async t => {

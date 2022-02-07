@@ -16,7 +16,7 @@ test.group('Providers initialization working', group => {
 
   test('B2Provider', async assert => {
     assert.isDefined(ioc.use('BackBlaze'))
-    assert.isTrue(ioc._bindings.AdonisB2.singleton)
+    assert.isTrue(ioc._bindings.BackBlaze.singleton)
   })
 
   test('B2Config Loaded Correctly', async assert => {

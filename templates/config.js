@@ -6,7 +6,7 @@ const Env = use('Env')
 
 module.exports = {
   /*
-   * When enabled, AdonisB2 will automatically avoid upload to backblaze
+   * When enabled, BackBlaze will automatically avoid upload to backblaze
    * returning a dummy file
    */
   dummy: Env.get('BLAZE_DISABLE_UPLOAD') == 'true' ? true : false,
