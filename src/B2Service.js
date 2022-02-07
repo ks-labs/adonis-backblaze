@@ -39,7 +39,7 @@ class B2Service {
       defaultTimeout: undefined
     }
     // Load Envs
-    this._b2Options = this.ConfigInstance.merge('app.b2-provider', this._b2Options)
+    this._b2Options = this.ConfigInstance.merge('b2-provider', this._b2Options)
     await this.recreateB2Instance()
   }
 

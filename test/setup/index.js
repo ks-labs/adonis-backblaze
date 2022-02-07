@@ -7,9 +7,9 @@ const { Macroable } = require('macroable')
 const FakeB2Model = require('./FakeB2Model')
 
 class Context extends Macroable {
-  static onReady () {}
+  static onReady() {}
 
-  constructor () {
+  constructor() {
     super()
     this._qs = {}
 
@@ -64,9 +64,9 @@ module.exports = async (opts = { dummy: true }) => {
     const config = new Config()
 
     if (opts.dummy) {
-      config.set('app.b2-provider', fakeConfig)
+      config.set('b2-provider', fakeConfig)
     } else {
-      config.set('app.b2-provider', testConfig)
+      config.set('b2-provider', testConfig)
     }
 
     return config
