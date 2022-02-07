@@ -2,7 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [2.3.4](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.2...v2.3.4) (2022-02-07)
+<a name="2.3.5"></a>
+
+## 2.3.5 (2022-02-07)
+
+### Added
+
+- ✅ test(fix): fix tests, that are using old provider namespace [[4221f39](https://github.com/ks-labs/adonis-backblaze/commit/4221f39addf645226b05195cf6d2ff5cc211b734)]
+
+### Changed
+
+- 📌 chore(release): 2.3.5 [[d1fd428](https://github.com/ks-labs/adonis-backblaze/commit/d1fd4280d9987ef7d8cb21afbc0eccbebb7d6df9)]
+
+<a name="2.3.4"></a>
+
+## 2.3.4 (2022-02-07)
+
+### Changed
+
+- ♻️ refactor(provider): renamed provider name, changed B2File model load strategy [[3686939](https://github.com/ks-labs/adonis-backblaze/commit/3686939fd55e508f8c3a66ecf2cb6ddee31065c7)]
+
+### Miscellaneous
+
+- chore(release): 2.3.4 [[4fbea2a](https://github.com/ks-labs/adonis-backblaze/commit/4fbea2a0d000b4fe916809d5d05e1f427b0fea5f)]
+- chore: v2.3.3 [[effc306](https://github.com/ks-labs/adonis-backblaze/commit/effc30653834a562ba421ea3eba23d8bcc9e2610)]
 
 ## [2.3.3](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.2...v2.3.3) (2022-02-07)
 
@@ -20,19 +43,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 - chore(release): 2.3.2 [[be0f6c9](https://github.com/ks-labs/adonis-backblaze/commit/be0f6c9f32b66c3edf2dc7013842e77b071c06fc)]
 
-<a name="2.3.3"></a>
-## 2.3.3 (2022-02-07)
-
-### Changed
-
-- ♻️ refactor(provider): renamed provider name, changed B2File model load strategy [[3686939](https://github.com/ks-labs/adonis-backblaze/commit/3686939fd55e508f8c3a66ecf2cb6ddee31065c7)]
-
-### Miscellaneous
-
--  chore: v2.3.3 [[effc306](https://github.com/ks-labs/adonis-backblaze/commit/effc30653834a562ba421ea3eba23d8bcc9e2610)]
-
-
 <a name="2.3.2"></a>
+
 ## 2.3.2 (2022-02-06)
 
 ### Fixed
@@ -41,8 +53,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Miscellaneous
 
--  chore(release): 2.3.2 [[be0f6c9](https://github.com/ks-labs/adonis-backblaze/commit/be0f6c9f32b66c3edf2dc7013842e77b071c06fc)]
-
+- chore(release): 2.3.2 [[be0f6c9](https://github.com/ks-labs/adonis-backblaze/commit/be0f6c9f32b66c3edf2dc7013842e77b071c06fc)]
 
 <a name="2.3.1"></a>
 
