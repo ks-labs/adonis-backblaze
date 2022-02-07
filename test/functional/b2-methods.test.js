@@ -35,17 +35,17 @@ test.group('Backblaze Integration Tests', group => {
     if (!cfgWithSlashPrefix.blazeAppKey) throw new Error('OLD_B2_APP_KEY is not defined')
     if (!cfgWithoutSlash.blazeAppKey) throw new Error('B2_APP_KEY is not defined')
 
-    b2Singleton = ioc.use('AdonisB2')
+    b2Singleton = ioc.use('BackBlaze')
     await clearBucket(b2Singleton, cfgWithSlashPrefix)
   })
 
   test('B2Provider', async t => {
-    t.isDefined(ioc.use('AdonisB2'))
+    t.isDefined(ioc.use('BackBlaze'))
     t.isTrue(ioc._bindings.AdonisB2.singleton)
   })
 
   test('B2Config Loaded Correctly', async t => {
-    const b2Options = ioc.use('AdonisB2')._b2Options
+    const b2Options = ioc.use('BackBlaze')._b2Options
     t.isDefined(b2Options)
     t.strictEqual(b2Options.dummy, undefined)
 
@@ -56,7 +56,7 @@ test.group('Backblaze Integration Tests', group => {
   })
 
   test('B2File Creation', async t => {
-    t.isDefined(ioc.use('AdonisB2')._b2Options)
+    t.isDefined(ioc.use('BackBlaze')._b2Options)
 
     await b2Singleton.authorize()
     const entityCreated = await b2Singleton.uploadAndInsertB2File({

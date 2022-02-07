@@ -19,9 +19,12 @@ class B2Provider extends ServiceProvider {
    * @return {void}
    */
   register() {
-    const Config = this.app.use('Adonis/Src/Config')
-    const Helpers = this.app.use('Helpers')
-    this.app.singleton('AdonisB2', app => new B2Service(Config, Helpers))
+    this.app.singleton('Adonis/Addons/BackBlaze', app => {
+      const Config = this.app.use('Adonis/Src/Config')
+      const Helpers = this.app.use('Helpers')
+      return new B2Service(Config, Helpers)
+    })
+    this.app.alias('Adonis/Addons/BackBlaze', 'BackBlaze')
   }
 
   /**

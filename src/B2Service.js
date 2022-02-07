@@ -8,30 +8,25 @@ const path = require('path')
 const md5 = require('md5')
 const NE = require('node-exceptions')
 
-/** @typedef {import('@adonisjs/sink').Helpers} Helpers */
-/** @typedef {import('@adonisjs/sink').Config} Config */
 /** @typedef {import('@adonisjs/sink')} Sink */
 
 const _ = require('lodash')
 
-/** @type {typeof import('../templates/B2File')} */
-const B2File = use('App/Models/B2File')
-
 /** @typedef {import('@adonisjs/bodyparser/src/Multipart/File')} File */
 class B2Service {
   /**
-   * @param  {Config} ConfigInstance
+   * @param  {Sync.Config} ConfigInstance
    * @param  {Helpers} Helpers
    */
   constructor(ConfigInstance, Helpers) {
-    /** @type {Config} */
+    /** @type {Sync.Config} */
     this.ConfigInstance = ConfigInstance
     /** @type {Helpers} */
     this._helpers = Helpers
     this._loadDefaultConfig()
   }
   /**
-   * @param  {Config} ConfigInstance
+   * @param  {Sync.Config} ConfigInstance
    */
   async _loadDefaultConfig() {
     this._b2Options = {
@@ -89,7 +84,9 @@ class B2Service {
     { originalName = md5(Date.now()), prefix, file_password }
   ) {
     if (this._b2Options.dummy) {
-      const B2Model = use('App/Models/B2File').createFromBackBlaze({
+      /** @type {typeof import('../templates/B2File')} */
+      const B2File = use('App/Models/B2File')
+      const B2Model = B2File.createFromBackBlaze({
         client_file_name: originalName
       })
       return B2Model
@@ -431,6 +428,8 @@ class B2Service {
     if (updateDBModels) {
       for (const migrated of migratedFiles) {
         if (migrated.error) {
+          /** @type {typeof import('../templates/B2File')} */
+          const B2File = use('App/Models/B2File')
           const oldB2File = await B2File.find({
             contentSha1: migrated.old.info.contentSha1,
             fileId: migrated.old.info.fileId
@@ -464,6 +463,8 @@ class B2Service {
    */
   async downloadFileById(b2FileId, responseType = 'arraybuffer') {
     if (!this._b2Options.dummy) {
+      /** @type {typeof import('../templates/B2File')} */
+      const B2File = use('App/Models/B2File')
       const b2File = await B2File.find(b2FileId)
       const response = await this.b2.downloadFileById({
         fileId: b2File.fileId,
@@ -506,6 +507,8 @@ class B2Service {
   }
 
   async normalizeAndCreateB2File(response) {
+    /** @type {typeof import('../templates/B2File')} */
+    const B2File = use('App/Models/B2File')
     response.data.fileInfo = JSON.stringify(response.data.fileInfo)
     return await B2File.createFromBackBlaze(response.data)
   }
