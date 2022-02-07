@@ -1,6 +1,18 @@
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+<a name="2.3.8"></a>
+
+### [2.3.8](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.7...v2.3.8) (2022-02-07)
+
+### Fixed
+
+- 🐛 fix(model): fix error during model update, causing save without changes [[d9019ad](https://github.com/ks-labs/adonis-backblaze/commit/d9019ad5716ecc2eded8e8f83a7cc69d6dc5fd48)]
+- 🐛 fix(config): add more checks to ensure dummy flag its correct could be string|boolean [[9b3199d](https://github.com/ks-labs/adonis-backblaze/commit/9b3199d14dca16d867dd4f0c25c351ed7acbd1e8)]
+
+### Miscellaneous
+
+- 📝 docs: add docs relative to deleteOldFiles and updateDBModels into migrateToken method [[c3a3c84](https://github.com/ks-labs/adonis-backblaze/commit/c3a3c84224aaa56bbb5a203ec3c4c78cd84fc806)]
 
 <a name="2.3.7"></a>
 

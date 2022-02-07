@@ -1,10 +1,17 @@
 'use strict'
 
 const _ = require('lodash')
-
+const allFiles = []
 class FakeModel {
-  static find() {
-    return new FakeModel()
+  static find(id) {
+    if (allFiles.find(file => file.id === id)) return allFiles.find(file => file.id === id)
+    else return new FakeModel()
+  }
+
+  static findBy(object) {
+    if (allFiles.find(file => file.id === object.id))
+      return allFiles.find(file => file.id === object.id)
+    else return new FakeModel()
   }
 
   static create(args) {
@@ -16,6 +23,7 @@ class FakeModel {
       }
     }
     newInstance.id = Date.now()
+    allFiles.push(newInstance)
     return newInstance
   }
 

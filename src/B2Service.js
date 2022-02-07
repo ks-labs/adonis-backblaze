@@ -449,7 +449,7 @@ class B2Service {
             'to',
             migrated.new.info.fileName
           )
-          migratedFiles[idx].model = b2Model.toJSON() // save model reference to return
+          migratedFiles[idx].model = b2Model // save model reference to return
         } else {
           console.warn('Skipping with error:', migrated.old.info.fileName)
         }
