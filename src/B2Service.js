@@ -14,6 +14,9 @@ const _ = require('lodash')
 
 /** @typedef {import('@adonisjs/bodyparser/src/Multipart/File')} File */
 class B2Service {
+  get isDummy() {
+    return this._b2Options.dummy === true || this._b2Options.dummy === 'true'
+  }
   /**
    * @param  {Sync.Config} ConfigInstance
    * @param  {Helpers} Helpers
@@ -47,7 +50,7 @@ class B2Service {
   }
 
   async recreateB2Instance() {
-    if (this._b2Options.dummy) {
+    if (this.isDummy) {
       return
     }
     const B2 = require('backblaze-b2')
@@ -67,7 +70,7 @@ class B2Service {
    * must authorize before any job
    */
   async authorize() {
-    if (this._b2Options.dummy) {
+    if (this.isDummy) {
       return null
     }
     const result = await this.b2.authorize()
@@ -86,7 +89,7 @@ class B2Service {
     fileInstance,
     { originalName = md5(Date.now()), prefix, file_password }
   ) {
-    if (this._b2Options.dummy) {
+    if (this.isDummy) {
       /** @type {typeof import('../templates/B2File')} */
       const B2File = use('App/Models/B2File')
       const B2Model = B2File.createFromBackBlaze({
@@ -182,7 +185,7 @@ class B2Service {
     onUploadProgress,
     file_password
   }) {
-    if (this._b2Options.dummy) {
+    if (this.isDummy) {
       const B2Model = use('App/Models/B2File').createFromBackBlaze({
         client_file_name: originalName
       })
@@ -208,7 +211,7 @@ class B2Service {
   }
 
   async listFilesOnBucket({ prefix, limit = 150 }) {
-    if (!this._b2Options.dummy) {
+    if (!this.isDummy) {
       const normalizedPath = this._b2FilePathWithPrefix(prefix)
       const resp = await this.b2.listFileNames({
         bucketId: this._b2Options.blazeBucketID,
@@ -247,7 +250,7 @@ class B2Service {
       deleteOldFile = false,
       credentials = null
     } = opts
-    if (!this._b2Options.dummy) {
+    if (!this.isDummy) {
       const hasFromConfig = opts.credentials && opts.credentials.from
       if (hasFromConfig) await this.changeConfig(opts.credentials.from)
 
@@ -315,7 +318,7 @@ class B2Service {
       updateDBModels = false,
       deleteOldFile = false
     } = opts
-    if (this._b2Options.dummy) throw new Error('Dummy mode is not supported for this method')
+    if (this.isDummy) throw new Error('Dummy mode is not supported for this method')
 
     if (!from) throw new Error('from config is required')
     if (!to) throw new Error('to config is required')
@@ -450,7 +453,7 @@ class B2Service {
   }
 
   async deleteB2Object({ fileId, fileName }) {
-    if (this._b2Options.dummy) {
+    if (this.isDummy) {
       return arguments[0]
     }
     return this.b2.deleteFileVersion({
@@ -465,7 +468,7 @@ class B2Service {
    * @returns  {ArrayBuffer}
    */
   async downloadFileById(b2FileId, responseType = 'arraybuffer') {
-    if (!this._b2Options.dummy) {
+    if (!this.isDummy) {
       /** @type {typeof import('../templates/B2File')} */
       const B2File = use('App/Models/B2File')
       const b2File = await B2File.find(b2FileId)
