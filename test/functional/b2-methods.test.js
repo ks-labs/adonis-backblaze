@@ -35,17 +35,12 @@ test.group('Backblaze Integration Tests', group => {
     if (!cfgWithSlashPrefix.blazeAppKey) throw new Error('OLD_B2_APP_KEY is not defined')
     if (!cfgWithoutSlash.blazeAppKey) throw new Error('B2_APP_KEY is not defined')
 
-    b2Singleton = ioc.use('BackBlaze')
+    b2Singleton = ioc.use('AdonisB2')
     await clearBucket(b2Singleton, cfgWithSlashPrefix)
   })
 
-  test('B2Provider', async t => {
-    t.isDefined(ioc.use('BackBlaze'))
-    t.isTrue(ioc._bindings.BackBlaze.singleton)
-  })
-
   test('B2Config Loaded Correctly', async t => {
-    const b2Options = ioc.use('BackBlaze')._b2Options
+    const b2Options = ioc.use('AdonisB2')._b2Options
     t.isDefined(b2Options)
     t.strictEqual(b2Options.dummy, undefined)
 
@@ -56,7 +51,7 @@ test.group('Backblaze Integration Tests', group => {
   })
 
   test('B2File Creation', async t => {
-    t.isDefined(ioc.use('BackBlaze')._b2Options)
+    t.isDefined(ioc.use('AdonisB2')._b2Options)
 
     await b2Singleton.authorize()
     const entityCreated = await b2Singleton.uploadAndInsertB2File({
@@ -159,21 +154,15 @@ test.group('Backblaze Integration Tests', group => {
         fileName: 'test2.txt',
         pathToFile: 'migration-folder',
         originalName: 'original.name2.txt'
-      }),
-      b2Singleton.uploadAndInsertB2File({
-        bufferToUpload: Buffer.from('Text Content !!'),
-        fileName: 'test3.txt',
-        pathToFile: 'migration-folder',
-        originalName: 'original.name3.txt'
       })
     ])
-    console.log('Uploaded all 3 test files')
+    console.log('Uploaded all test files')
     // List all files uploaded
     const beforeMove = await b2Singleton.listFilesOnBucket({
       limit: 1000
     })
     t.isNotEmpty(beforeMove.files)
-    t.equal(beforeMove.files.length, 3)
+    t.equal(beforeMove.files.length, 2)
     t.equal(uploadedFiles[0].fileName, '/slash-prefix/migration-folder/test1.txt')
 
     await b2Singleton.migrateTokenAndDatabaseNames({
@@ -189,7 +178,7 @@ test.group('Backblaze Integration Tests', group => {
       limit: 1000
     })
     t.isNotEmpty(afterMove.files)
-    t.equal(afterMove.files.length, 3)
+    t.equal(afterMove.files.length, 2)
     t.equal(afterMove.files[0].fileName, 'provider-files/migration-folder/test1.txt')
     await clearBucket(b2Singleton, cfgWithoutSlash)
   })

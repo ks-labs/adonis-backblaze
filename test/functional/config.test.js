@@ -11,17 +11,18 @@ test.group('Providers initialization working', group => {
   })
 
   group.beforeEach(() => {
-    ioc.restore()
+    return ioc.restore()
   })
 
-  test('B2Provider', async assert => {
-    assert.isDefined(ioc.use('BackBlaze'))
-    assert.isTrue(ioc._bindings.BackBlaze.singleton)
+  test('B2 Provider Registered', async assert => {
+    const B2Provider = ioc.use('AdonisB2')
+    assert.isNotEmpty(B2Provider)
+    assert.isTrue(ioc._bindings['AdonisB2'].singleton)
   })
 
   test('B2Config Loaded Correctly', async assert => {
-    assert.isDefined(ioc.use('BackBlaze')._b2Options)
-    const b2Options = ioc.use('BackBlaze')._b2Options
+    assert.isDefined(ioc.use('AdonisB2')._b2Options)
+    const b2Options = ioc.use('AdonisB2')._b2Options
 
     assert.strictEqual(b2Options.dummy, true)
     assert.strictEqual(b2Options.blazeAppKeyID, 'testing')
@@ -29,8 +30,8 @@ test.group('Providers initialization working', group => {
   })
 
   test('B2File Creation', async assert => {
-    assert.isDefined(ioc.use('BackBlaze')._b2Options)
-    const B2Provider = ioc.use('BackBlaze')
+    assert.isDefined(ioc.use('AdonisB2')._b2Options)
+    const B2Provider = ioc.use('AdonisB2')
     const uploeaded = await B2Provider.uploadAndInsertB2File({
       bufferToUpload: Buffer.from('test')
     })

@@ -23,7 +23,7 @@ That's all! Now you can use the request transformer by importing it from the htt
 ```js
 // To get type definitions working on vscode
 /** @type {typeof import('@ks-labs/adonis-backblaze/src/B2Service')} */
-const B2Provider = use('App/BackBlaze')
+const B2Provider = use('AdonisB2')
 
 class UserController {
   async index({ request, response, params }) {
