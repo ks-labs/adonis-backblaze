@@ -31,7 +31,7 @@ class B2Service {
   /**
    * @param  {Sync.Config} ConfigInstance
    */
-  async _loadDefaultConfig() {
+  _loadDefaultConfig() {
     this._b2Options = {
       dummy: undefined,
       blazeAppKey: undefined,
@@ -46,10 +46,10 @@ class B2Service {
     if (!this._b2Options.blazeAppKey) {
       throw new Error('Invalid Backblaze "blazeAppKey" when load config file.')
     }
-    await this.recreateB2Instance()
+    this.recreateB2Instance()
   }
 
-  async recreateB2Instance() {
+  recreateB2Instance() {
     if (this.isDummy) {
       return
     }
@@ -62,7 +62,7 @@ class B2Service {
 
   async changeConfig(newConfig) {
     this._b2Options = _.merge(this._b2Options, newConfig)
-    await this.recreateB2Instance()
+    this.recreateB2Instance()
     return await this.authorize()
   }
 
@@ -266,7 +266,7 @@ class B2Service {
         fileId: originFileId,
         responseType: 'arraybuffer'
       })
-      if (hasFromConfig) await this._loadDefaultConfig() // restore settings
+      if (hasFromConfig) this._loadDefaultConfig() // restore settings
       const changedToConfig = opts.credentials && opts.credentials.to
 
       if (changedToConfig) await this.changeConfig(opts.credentials.to)
