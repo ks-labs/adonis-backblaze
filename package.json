@@ -8,21 +8,16 @@
   "directories": {
     "example": "example"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "config": {
     "commitizen": {
       "path": "cz-customizable"
     }
   },
-  "release-it": {
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": "@favoloso/emoji",
-        "infile": "CHANGELOG.md"
-      }
-    }
+  "favolosoEmoji": {
+    "showEmojiPerCommit": true
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "lint": "standard",
@@ -33,6 +28,7 @@
     "posttest": "echo posttest",
     "cm": "cz",
     "changemoji": "npx gitmoji-changelog",
+    "rit": "release-it",
     "release": "standard-version --releaseCommitMessageFormat \":pushpin: chore(release): {{currentTag}}\"",
     "release:minor": "standard-version --release-as minor --releaseCommitMessageFormat \":pushpin: chore(release): {{currentTag}}\"",
     "release:patch": "standard-version --release-as patch --releaseCommitMessageFormat \":pushpin: chore(release): {{currentTag}}\"",

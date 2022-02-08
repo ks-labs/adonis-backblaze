@@ -1,167 +1,139 @@
-# Changelog
+# [2.3.10](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.9...v2.3.10) (2022-02-08)
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
-
-<a name="2.3.10"></a>
-
-## [2.3.10](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.9...v2.3.10) (2022-02-08)
-
-### Added
+## Added
 
 - ✨ feat(download): add support to chunk and parallel downloads during migration [[44f6b31](https://github.com/ks-labs/adonis-backblaze/commit/44f6b31d959835c8898d42f6e2049de0ea107197)]
 
-<a name="2.3.9"></a>
+# [2.3.9](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.8...v2.3.9) (2022-02-07)
 
-## [2.3.9](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.8...v2.3.9) (2022-02-07)
-
-### Added
+## Added
 
 - ✨ feat(token-migration): added support to skip allready downloaded files [[5945be3](https://github.com/ks-labs/adonis-backblaze/commit/5945be3f269180c83735cbc2fcef10645b1159a0)]
 
-<a name="2.3.8"></a>
+# [2.3.8](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.7...v2.3.8) (2022-02-07)
 
-## [2.3.8](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.7...v2.3.8) (2022-02-07)
-
-### Fixed
+## Fixed
 
 - 🐛 fix(model): fix error during model update, causing save without changes [[d9019ad](https://github.com/ks-labs/adonis-backblaze/commit/d9019ad5716ecc2eded8e8f83a7cc69d6dc5fd48)]
 - 🐛 fix(config): add more checks to ensure dummy flag its correct could be string|boolean [[9b3199d](https://github.com/ks-labs/adonis-backblaze/commit/9b3199d14dca16d867dd4f0c25c351ed7acbd1e8)]
 
-### Miscellaneous
+## Miscellaneous
 
 - 📝 docs: add docs relative to deleteOldFiles and updateDBModels into migrateToken method [[c3a3c84](https://github.com/ks-labs/adonis-backblaze/commit/c3a3c84224aaa56bbb5a203ec3c4c78cd84fc806)]
 
-<a name="2.3.7"></a>
+# [2.3.7](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.5...v2.3.7) (2022-02-07)
 
-## [2.3.7](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.5...v2.3.7) (2022-02-07)
-
-### Added
+## Added
 
 - ✨ feat(settings): add exception when cant load settings &#x60;b2-provider&#x60; appkey [[df0d932](https://github.com/ks-labs/adonis-backblaze/commit/df0d932a956a9acf3617591f558cc224e74737ab)]
 
-### Fixed
+## Fixed
 
 - 🐛 fix(settings): fix settings load namespace to use &#x60;b2-provider&#x60; path and update template config [[e2b12cf](https://github.com/ks-labs/adonis-backblaze/commit/e2b12cfdc5d8fac3282ff18b6f886eede1641687)]
 
-<a name="2.3.6"></a>
+# [2.3.6](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.5...v2.3.6) (2022-02-07)
 
-## [2.3.6](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.5...v2.3.6) (2022-02-07)
-
-### Added
+## Added
 
 - ✅ test(fix): fix tests, that are using old provider namespace [[4221f39](https://github.com/ks-labs/adonis-backblaze/commit/4221f39addf645226b05195cf6d2ff5cc211b734)]
 
-### Changed
+## Changed
 
 - 📌 chore(release): 2.3.6 [[d2c04c8](https://github.com/ks-labs/adonis-backblaze/commit/d2c04c808758759477c6f1916e507d9cd4ea1b51)]
 
-### Breaking changes
+## Breaking changes
 
 - 💥 fix: change provider namespace to AdonisB2 avoiding breaking changes from past releases [[177dfa6](https://github.com/ks-labs/adonis-backblaze/commit/177dfa69658ce717007c6f22df75252267308814)]
 
-<a name="2.3.5"></a>
-
 ## 2.3.5 (2022-02-07)
 
-### Changed
+## Changed
 
 - 📌 chore(release): 2.3.5 [[089d403](https://github.com/ks-labs/adonis-backblaze/commit/089d403770117cb155efd9fe289925100cb081a0)]
 
-<a name="2.3.4"></a>
-
 ## 2.3.4 (2022-02-07)
 
-### Changed
+## Changed
 
 - ♻️ refactor(provider): renamed provider name, changed B2File model load strategy [[3686939](https://github.com/ks-labs/adonis-backblaze/commit/3686939fd55e508f8c3a66ecf2cb6ddee31065c7)]
 
-### Miscellaneous
+## Miscellaneous
 
 - chore(release): 2.3.4 [[4fbea2a](https://github.com/ks-labs/adonis-backblaze/commit/4fbea2a0d000b4fe916809d5d05e1f427b0fea5f)]
 - chore: v2.3.3 [[effc306](https://github.com/ks-labs/adonis-backblaze/commit/effc30653834a562ba421ea3eba23d8bcc9e2610)]
 
-## [2.3.3](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.2...v2.3.3) (2022-02-07)
+# [2.3.3](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.2...v2.3.3) (2022-02-07)
 
-### Fixed
+## Fixed
 
 - 🐛 fix(provider): change typedef import of @adonisjs/sync, to avoid errors on production install [[f99dfe8](https://github.com/ks-labs/adonis-backblaze/commit/f99dfe832f1f02c9e8bd3830fe66d48315e39a90)]
 
-## [2.3.2](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.1...v2.3.2) (2022-02-06)
+# [2.3.2](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.1...v2.3.2) (2022-02-06)
 
-### Fixed
+## Fixed
 
 - 🐛 fix(provider): change type import, to avoid errors on production install [[f99dfe8](https://github.com/ks-labs/adonis-backblaze/commit/f99dfe832f1f02c9e8bd3830fe66d48315e39a90)]
 
-### Miscellaneous
+## Miscellaneous
 
 - chore(release): 2.3.2 [[be0f6c9](https://github.com/ks-labs/adonis-backblaze/commit/be0f6c9f32b66c3edf2dc7013842e77b071c06fc)]
-
-<a name="2.3.2"></a>
 
 ## 2.3.2 (2022-02-06)
 
-### Fixed
+## Fixed
 
 - 🐛 fix(provider): change type import, to avoid errors on production install [[f99dfe8](https://github.com/ks-labs/adonis-backblaze/commit/f99dfe832f1f02c9e8bd3830fe66d48315e39a90)]
 
-### Miscellaneous
+## Miscellaneous
 
 - chore(release): 2.3.2 [[be0f6c9](https://github.com/ks-labs/adonis-backblaze/commit/be0f6c9f32b66c3edf2dc7013842e77b071c06fc)]
 
-<a name="2.3.1"></a>
-
 ## 2.3.1 (2022-02-06)
 
-### Fixed
+## Fixed
 
 - 🐛 fix(provider): remove wrong &#x60;;(&#x27;use strict&#x27;)&#x60; flag, move devDep to dependecies due error on user [[cd982e0](https://github.com/ks-labs/adonis-backblaze/commit/cd982e0b69141ae548176fcf18a757444b6890d5)]
 
-### Miscellaneous
+## Miscellaneous
 
 - chore(release): 2.3.1 [[24b261e](https://github.com/ks-labs/adonis-backblaze/commit/24b261ef117a2f15638e1d65a66e6bc1df78ff54)]
 - 📝 docs(token-migrate): add token migration to the docs with short explanation [[1918a8f](https://github.com/ks-labs/adonis-backblaze/commit/1918a8fd62db07f59b548e1aa53b75969445e6b4)]
 
-<a name="2.3.0"></a>
-
 ## 2.3.0 (2022-02-05)
 
-### Added
+## Added
 
 - ✨ feat(token-migration): add option to update b2file model after migration or not [[80b499f](https://github.com/ks-labs/adonis-backblaze/commit/80b499ff63b7630954a467066ac1cd4f9586af22)]
 
-### Changed
+## Changed
 
 - 📌 chore(release): 2.3.0 [[fb4cac1](https://github.com/ks-labs/adonis-backblaze/commit/fb4cac15c43242a31cd73a9b1f8e56d2fb438590)]
 
-<a name="2.2.0"></a>
-
 ## 2.2.0 (2022-02-04)
 
-### Added
+## Added
 
 - ✅ test: released all tests on order [[4942423](https://github.com/ks-labs/adonis-backblaze/commit/494242365d1066faec3a4ed84654305f09abfd3e)]
 - ✨ feat(provider): add method to migrate files from one env to another [[f4426a3](https://github.com/ks-labs/adonis-backblaze/commit/f4426a374a8af27f36bb8c0dd889b88b6200a67e)]
 
-### Changed
+## Changed
 
 - 📌 chore(gitignore): removed tmp files from tests [[660fcb7](https://github.com/ks-labs/adonis-backblaze/commit/660fcb70d3633cdc86ca694fe0e55922708da10b)]
 
-### Fixed
+## Fixed
 
 - 🐛 fix(test): improve logs during token migration [[6396125](https://github.com/ks-labs/adonis-backblaze/commit/6396125b124b7a75500e56fa81547203daa623d2)]
 - 💚 ci(envs): add correct enviroments during tests [[77ce230](https://github.com/ks-labs/adonis-backblaze/commit/77ce2304ae7ef83e3a6e8956cc9839bfccbd6a1b)]
 
-### Miscellaneous
+## Miscellaneous
 
 - chore(release): 2.2.0 [[fb3b9e2](https://github.com/ks-labs/adonis-backblaze/commit/fb3b9e21d32ea32fccd244c6e21e43bdfb5bfbbc)]
 - chore(release): 2.1.0 [[05a8c34](https://github.com/ks-labs/adonis-backblaze/commit/05a8c34666f7fd69145771226e4fbb30e5ad6aae)]
 - feat: add method to allow move files [[3790339](https://github.com/ks-labs/adonis-backblaze/commit/3790339b35fd88e187a6f50630c810adcdc40f4e)]
 
-<a name="2.0.0"></a>
-
 ## 2.0.0 (2022-01-20)
 
-### Miscellaneous
+## Miscellaneous
 
 - chore(release): 2.0.0 [[8f27d8a](https://github.com/ks-labs/adonis-backblaze/commit/8f27d8a29a39e3fe69c6c6af90c7699b4020b50e)]
 - ci: fixed integration tests enviroments for gh-actions [[3ea5f1c](https://github.com/ks-labs/adonis-backblaze/commit/3ea5f1c5f13c4ef6b135db4933211392f9b71442)]
