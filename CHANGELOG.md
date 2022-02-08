@@ -1,6 +1,6 @@
 ## [2.3.15](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.15) (2022-02-08)
 
-- :white_check_mark: test: fix tests to achieve expected behaviour from new config load (43d7a95)
+- :white_check_mark: test: fix tests to achieve expected behaviour from new config load (5acdc84)
 - :sparkles: feat(upload): add check if allready uploaded original file skipping if allready uploaded (1cc2e87)
 - :sparkles: feat(service): add listFileVersions method to the provider using env bucketId as default parameter (1cf1e07)
 - :bug: fix(config): remove reusing of envs when change config, causing overlap envs bug (40ec445)
