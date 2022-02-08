@@ -1,17 +1,16 @@
 'use-strict'
 
 // read stream as buffers
-const fs = require('fs')
 const { readFileSync } = require('fs')
 const { posix } = require('path')
 const path = require('path')
 const md5 = require('md5')
 const NE = require('node-exceptions')
-const { fromFileSync } = require('hasha')
 
 /** @typedef {import('@adonisjs/sink')} Sink */
 
 const _ = require('lodash')
+const doTokenMigration = require('./TokenMigration')
 
 /** @typedef {import('@adonisjs/bodyparser/src/Multipart/File')} File */
 class B2Service {
@@ -107,9 +106,7 @@ class B2Service {
       })
 
       // read file from fileINstance
-      let bufferToUpload = await readFileSync(
-        path.join(fileInstance._location, fileInstance.fileName)
-      )
+      let bufferToUpload = readFileSync(path.join(fileInstance._location, fileInstance.fileName))
 
       // upload file
 
@@ -313,188 +310,7 @@ class B2Service {
    * @returns {Promise<StandardApiResponse> } - new backblaze file details
    */
   async migrateTokenAndDatabaseNames(opts = {}) {
-    const {
-      from = null,
-      to = null,
-      limit = 10000,
-      updateDBModels = false,
-      deleteOldFile = false
-    } = opts
-    if (this.isDummy) throw new Error('Dummy mode is not supported for this method')
-
-    if (!from) throw new Error('from config is required')
-    if (!to) throw new Error('to config is required')
-    const migratedFiles = []
-    const oldFilesTmp = this._helpers.tmpPath(
-      '/migration-' +
-        from.blazeAppKey.substr(from.blazeAppKey.length - 7, from.blazeAppKey.length - 1) +
-        '-old'
-    )
-    await this.changeConfig(from)
-    const oldRequest = await this.listFilesOnBucket({
-      limit
-    })
-    console.log('[LOG] Total old files to migrate:', oldRequest?.files?.length ?? 0)
-
-    let totalMigrated = 0
-    for (const oldFile of oldRequest.files) {
-      let hasFileCache = false
-      const tmpFilePath = path.join(oldFilesTmp, oldFile.fileName)
-      try {
-        fs.accessSync(tmpFilePath, fs.constants.R_OK | fs.constants.W_OK)
-        const sha1 = fromFileSync(tmpFilePath, {
-          algorithm: 'sha1',
-          encoding: 'hex'
-        })
-        hasFileCache = sha1 === oldFile.contentSha1
-      } catch (err) {
-        console.error('no access!', tmpFilePath)
-      }
-      if (hasFileCache) {
-        console.log('[LOG] skipping allready downloaded:', oldFile.fileId, oldFile.fileName)
-      } else {
-        const downloaded = await this.b2.downloadFileById({
-          fileId: oldFile.fileId,
-          responseType: 'arraybuffer'
-        })
-        console.log(
-          '[LOG] Downloading',
-          totalMigrated,
-          'of',
-          oldRequest?.files?.length ?? 0,
-          'old files'
-        )
-        try {
-          fs.mkdirSync(path.parse(tmpFilePath).dir, {
-            recursive: true
-          })
-        } catch (e) {
-          if (e.code !== 'EEXIST') {
-            throw e
-          }
-        }
-        try {
-          await fs.writeFileSync(tmpFilePath, downloaded.data)
-        } catch (e) {
-          if (e.code !== 'EEXIST') {
-            throw e
-          }
-        }
-      }
-
-      migratedFiles.push({
-        old: {
-          info: oldFile,
-          tmpFilePath
-        },
-        new: {}
-      })
-      totalMigrated++
-    }
-    console.log('[LOG] All files downloaded with success')
-    console.log('[LOG] Changing to new token and uploading:')
-
-    await this.changeConfig(to)
-    for (const id in migratedFiles) {
-      try {
-        let downloaded = migratedFiles[id]
-        migratedFiles[id].error = null
-        console.log(
-          '[LOG] Uploading',
-          'remaining',
-          totalMigrated--,
-          'of',
-          oldRequest?.files?.length ?? 0,
-          'files total'
-        )
-        let uploadName = downloaded.old.info.fileName
-        if (
-          from.blazeAppKeyPrefix &&
-          from.blazeAppKeyPrefix.length > 0 &&
-          from.blazeAppKeyPrefix !== to.blazeAppKeyPrefix
-        ) {
-          // remove the old prefix from the file name
-          uploadName = uploadName.split(from.blazeAppKeyPrefix).join('')
-        }
-        const fileCreated = await this.uploadBufferToBackBlaze({
-          fileName: uploadName,
-          bufferToUpload: fs.readFileSync(downloaded.old.tmpFilePath),
-          info: downloaded.old.info.info
-        })
-        migratedFiles[id].new.info = fileCreated?.data
-        if (migratedFiles[id].new.info.contentSha1 != downloaded.old.info.contentSha1) {
-          throw new SHA1MismatchException()
-        }
-      } catch (error) {
-        console.error(error)
-        migratedFiles[id].error = error
-      }
-    }
-    let hasError = false
-    for (const migrate of migratedFiles) {
-      if (migrate.error) {
-        hasError = true
-      }
-    }
-    console.log('[LOG] All files migrated with success')
-    if (deleteOldFile) {
-      console.log('[LOG] Changing to old token and deleting old files:')
-      await this.changeConfig(opts.from)
-      if (!hasError) {
-        for (const migrate of migratedFiles) {
-          totalMigrated++
-          console.log(
-            '[LOG] Deleting old files ',
-            totalMigrated,
-            'of',
-            oldRequest?.files?.length ?? 0,
-            ' old files'
-          )
-          await this.deleteB2Object(migrate.old.info)
-        }
-        console.log('[LOG] finished migration')
-      } else {
-        console.log('[WARN] some files has errors during migration')
-        console.log('[WARN] (nothing will be deleted)')
-      }
-    }
-    // update all database entries
-    if (updateDBModels) {
-      for (const id in migratedFiles) {
-        let migrated = migratedFiles[id]
-        if (migrated.error) {
-          console.warn('Skip because has error:', migrated.old.info.fileName)
-        } else {
-          /** @type {typeof import('../templates/B2File')} */
-          const B2File = use('App/Models/B2File')
-          const b2Model = await B2File.findBy('fileId', migrated.old.info.fileId)
-          if (!b2Model) {
-            const allreadyFound = await B2File.findBy('fileId', migrated.new.info.fileId)
-            if (allreadyFound) {
-              console.log('[LOG] model allready migrated fileId', migrated.new.info.fileId)
-            } else {
-              console.warn('[WARN] model not found fileId', migrated.old.info.fileId)
-            }
-            continue
-          }
-          const newB2File = B2File.fromBBlazeToB2File(migrated.new.info)
-          await b2Model.merge(newB2File)
-          await b2Model.save()
-          migratedFiles[id].model = b2Model // save model reference to return
-          console.log(
-            '[LOG] Updated B2 Model:',
-            migrated.old.info.fileName,
-            'to',
-            migrated.new.info.fileName
-          )
-        }
-      }
-    }
-    // restore default settings
-    console.log('[LOG] Restoring singleton config')
-    await this._loadDefaultConfig()
-    console.log('[LOG] Migration process finished')
-    return migratedFiles
+    return doTokenMigration(this, opts)
   }
 
   async deleteB2Object({ fileId, fileName }) {
