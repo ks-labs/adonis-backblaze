@@ -294,6 +294,7 @@ class B2Service {
   }
   /**
    * @param  {Object} opts
+   * @param  {number} opts.chunkSize - determines the size of the chunks for parallel execution (default is 1 == sequential)
    * @param  {boolean} opts.updateDBModels - if true, will update the database models with the new file info
    * @param  {boolean} opts.deleteOldFile - delete the old file after success migration
    * @param  {number} opts.limit - limit of files to migrate 10000 is default max is 10000
