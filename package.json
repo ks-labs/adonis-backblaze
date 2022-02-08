@@ -1,6 +1,6 @@
 {
   "name": "@ks-labs/adonis-backblaze",
-  "version": "2.3.12",
+  "version": "2.3.13",
   "description": "Adonis Provider for BackBlaze Cloud Storage",
   "main": "instructions.js",
   "author": "@ks-labs",
@@ -12,9 +12,6 @@
     "commitizen": {
       "path": "cz-customizable"
     }
-  },
-  "favolosoEmoji": {
-    "showEmojiPerCommit": true
   },
   "release-it": {
     "git": {
@@ -40,6 +37,9 @@
         "infile": "CHANGELOG.md"
       }
     }
+  },
+  "favolosoEmoji": {
+    "showEmojiPerCommit": true
   },
   "publishConfig": {
     "access": "public"

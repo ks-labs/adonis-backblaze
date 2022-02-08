@@ -1,3 +1,5 @@
+* :sparkles: feat(upload): support to parallel uploads added (538f591)
+
 ## [2.3.12](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.12) (2022-02-08)
 
 - :truck: chore: make debug messages less verbose when file not exists (b774f67)
