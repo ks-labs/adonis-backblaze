@@ -67,6 +67,12 @@ class B2Service {
     return await this.authorize()
   }
 
+  async listFileVersions({ bucketId, startFileName }) {
+    return this.b2.listFileNames({
+      bucketId: bucketId ? bucketId : this._b2Options.blazeBucketID,
+      prefix: this._b2FilePathWithPrefix(startFileName)
+    })
+  }
   /**
    * must authorize before any job
    */
