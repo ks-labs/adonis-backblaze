@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.3.10"></a>
+
+## [2.3.10](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.9...v2.3.10) (2022-02-08)
+
+### Added
+
+- ✨ feat(download): add support to chunk and parallel downloads during migration [[44f6b31](https://github.com/ks-labs/adonis-backblaze/commit/44f6b31d959835c8898d42f6e2049de0ea107197)]
+
 <a name="2.3.9"></a>
 
 ## [2.3.9](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.8...v2.3.9) (2022-02-07)
