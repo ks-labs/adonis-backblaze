@@ -1,3 +1,7 @@
+## [2.3.16](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.16) (2022-02-08)
+
+- :sparkles: feat(upload): add feature to remove slash prefix on new upload location (7bebe79)
+
 ## [2.3.15](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.15) (2022-02-08)
 
 - :white_check_mark: test: fix tests to achieve expected behaviour from new config load (5acdc84)
