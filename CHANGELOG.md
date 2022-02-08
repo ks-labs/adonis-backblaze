@@ -1,3 +1,6 @@
+* :bug: fix(token): remove authorize from upload chunk loop that cause authorization token error (fc04fa2)
+* :green_heart: ci(ci-cd): fix integration tests (13a57f4)
+
 ## [2.3.13](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.13) (2022-02-08)
 
 - :sparkles: feat(upload): support to parallel uploads added (538f591)
