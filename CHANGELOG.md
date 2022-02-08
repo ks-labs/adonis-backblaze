@@ -1,3 +1,5 @@
+## [2.3.11](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.11) (2022-02-08)
+
 * :bug: fix(tmp): change temporary download filename to avoid errors during token migration (4da4b74)
 * :hammer: style(release): update gitmoji release generation config (6ad1206)
 * :memo: docs(download): add chunksize information to the function docs (7cedad2)
