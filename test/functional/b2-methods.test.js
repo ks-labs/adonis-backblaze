@@ -180,6 +180,8 @@ test.group('Backblaze Integration Tests', group => {
     t.isNotEmpty(afterMove.files)
     t.equal(afterMove.files.length, 2)
     t.equal(afterMove.files[0].fileName, 'provider-files/migration-folder/test1.txt')
-    await clearBucket(b2Singleton, cfgWithoutSlash)
+    await clearBucket(b2Singleton, cfgWithoutSlash, {
+      prefix: 'migration-folder'
+    })
   })
 })

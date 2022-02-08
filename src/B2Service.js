@@ -311,7 +311,7 @@ class B2Service {
    * @returns {Promise<StandardApiResponse> } - new backblaze file details
    */
   async migrateTokenAndDatabaseNames(opts = {}) {
-    return doTokenMigration(this, opts)
+    return await doTokenMigration(this, opts)
   }
 
   async deleteB2Object({ fileId, fileName }) {

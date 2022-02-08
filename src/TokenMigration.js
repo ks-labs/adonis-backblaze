@@ -39,49 +39,24 @@ async function doTokenMigration(instance, opts) {
   migratedFiles = out.migratedFiles
   let downCount = out.downCount
 
-  await instance.changeConfig(to)
-  for (const id in migratedFiles) {
-    try {
-      let downloaded = migratedFiles[id]
-      migratedFiles[id].error = null
-      console.log(
-        '[LOG] Uploading',
-        'remaining',
-        downCount--,
-        'of',
-        oldFilesReq?.files?.length ?? 0,
-        'files total'
-      )
-      let uploadName = downloaded.old.info.fileName
-      if (
-        from.blazeAppKeyPrefix &&
-        from.blazeAppKeyPrefix.length > 0 &&
-        from.blazeAppKeyPrefix !== to.blazeAppKeyPrefix
-      ) {
-        // remove the old prefix from the file name
-        uploadName = uploadName.split(from.blazeAppKeyPrefix).join('')
-      }
-      const fileCreated = await instance.uploadBufferToBackBlaze({
-        fileName: uploadName,
-        bufferToUpload: fs.readFileSync(downloaded.old.tmpFilePath),
-        info: downloaded.old.info.info
-      })
-      migratedFiles[id].new.info = fileCreated?.data
-      if (migratedFiles[id].new.info.contentSha1 != downloaded.old.info.contentSha1) {
-        throw new SHA1MismatchException()
-      }
-    } catch (error) {
-      console.error(error)
-      migratedFiles[id].error = error
-    }
-  }
+  const uploaded = await uploadDownloaded(
+    instance,
+    to,
+    migratedFiles,
+    downCount,
+    oldFilesReq,
+    from,
+    chunkSize
+  )
+  downCount = uploaded.downCount
+  migratedFiles = uploaded.migratedFiles
   let hasError = false
   for (const migrate of migratedFiles) {
     if (migrate.error) {
       hasError = true
     }
   }
-  console.log('[LOG] All files migrated with success')
+  console.log('[LOG] All files migrated, has error ?', hasError)
   if (deleteOldFile) {
     console.log('[LOG] Changing to old token and deleting old files:')
     await instance.changeConfig(opts.from)
@@ -140,6 +115,70 @@ async function doTokenMigration(instance, opts) {
   await instance._loadDefaultConfig()
   console.log('[LOG] Migration process finished')
   return migratedFiles
+}
+
+async function uploadDownloaded(
+  instance,
+  to,
+  migratedFiles,
+  downCount,
+  oldFilesReq,
+  from,
+  chunkSize
+) {
+  const finishedEntries = []
+  const chunks = _.chunk(migratedFiles, chunkSize)
+  for (const cId in chunks) {
+    const chunkEntriesFinished = await Promise.all(
+      chunks[cId].map(async chunkEntry => {
+        await instance.changeConfig(to)
+        if (!chunkEntry.error) {
+          chunkEntry.error = null
+        }
+        let uploadName = createUploadPath(from, to, chunkEntry)
+        try {
+          console.log(
+            '[LOG] Uploading',
+            'remaining',
+            downCount,
+            'of',
+            oldFilesReq?.files?.length ?? 0,
+            'files total'
+          )
+
+          const fileCreated = await instance.uploadBufferToBackBlaze({
+            fileName: uploadName,
+            bufferToUpload: fs.readFileSync(chunkEntry.old.tmpFilePath),
+            info: chunkEntry.old.info.info
+          })
+          chunkEntry.new.info = fileCreated?.data
+          if (chunkEntry.new.info.contentSha1 != chunkEntry.old.info.contentSha1) {
+            throw new SHA1MismatchException()
+          }
+        } catch (error) {
+          console.error(error)
+          chunkEntry.error = error
+        }
+        downCount--
+        return chunkEntry
+      })
+    )
+    finishedEntries.push(...chunkEntriesFinished)
+  }
+
+  return { downCount, migratedFiles: finishedEntries }
+}
+
+function createUploadPath(from, to, chunkEntry) {
+  if (
+    from.blazeAppKeyPrefix &&
+    from.blazeAppKeyPrefix.length > 0 &&
+    from.blazeAppKeyPrefix !== to.blazeAppKeyPrefix
+  ) {
+    // remove the old prefix from the file name
+    return chunkEntry.old.info.fileName.split(from.blazeAppKeyPrefix).join('')
+  }
+  return chunkEntry.old.info.fileName
 }
 
 async function downloadB2Files(
