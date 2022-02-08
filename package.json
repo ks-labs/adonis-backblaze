@@ -5,6 +5,11 @@
   "main": "instructions.js",
   "author": "@ks-labs",
   "license": "MIT",
+  "engines": {
+    "node": ">=14.15.0",
+    "npm": ">=6.14.0",
+    "yarn": "WE NOT SUPORT - Due github packages incompatibilty Please use npm"
+  },
   "directories": {
     "example": "example"
   },

@@ -1,10 +1,15 @@
 'use strict'
+/** @typedef {import('./B2Service')} B2Service*/
 
 const hash = require('hasha')
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
 
+/**
+ * @param  {B2Service} instance - B2Service instance
+ * @param  {Object} opts - B2Service Migration Options
+ */
 async function doTokenMigration(instance, opts) {
   const {
     from = null,
@@ -115,7 +120,15 @@ async function doTokenMigration(instance, opts) {
   console.log('[LOG] Migration process finished')
   return migratedFiles
 }
-
+/**
+ * @param  {B2Service} instance
+ * @param  {} to
+ * @param  {} migratedFiles
+ * @param  {} downCount
+ * @param  {} oldFilesReq
+ * @param  {} from
+ * @param  {} chunkSize
+ */
 async function uploadDownloaded(
   instance,
   to,
@@ -134,23 +147,43 @@ async function uploadDownloaded(
         if (!chunkEntry.error) {
           chunkEntry.error = null
         }
-        let uploadName = createUploadPath(from, to, chunkEntry)
+        const uploadName = createUploadPath(from, to, chunkEntry)
         try {
-          console.log(
-            '[LOG] Uploading',
-            'remaining',
-            downCount,
-            'of',
-            oldFilesReq?.files?.length ?? 0,
-            'files total'
-          )
-
-          const fileCreated = await instance.uploadBufferToBackBlaze({
-            fileName: uploadName,
-            bufferToUpload: fs.readFileSync(chunkEntry.old.tmpFilePath),
-            info: chunkEntry.old.info.info
+          const canDownload = await instance.listFileVersions({
+            startFileName: uploadName
           })
-          chunkEntry.new.info = fileCreated?.data
+          if (
+            canDownload &&
+            canDownload?.data &&
+            canDownload?.data?.files?.length &&
+            canDownload?.data?.files[0].contentSha1 === chunkEntry?.old?.info?.contentSha1
+          ) {
+            console.log(
+              '[C-' + cId + ']',
+              '[LOG] Upload remaining',
+              downCount,
+              'of',
+              oldFilesReq?.files?.length ?? 0,
+              'total',
+              'allready exists skipping',
+              canDownload?.data?.files[0]?.fileName
+            )
+            chunkEntry.new.info = canDownload?.data?.files[0] ?? null
+          } else {
+            console.log(
+              '[C-' + cId + ']',
+              '[LOG] Upload remaining',
+              downCount,
+              'of',
+              oldFilesReq?.files?.length ?? 0
+            )
+            const fileCreated = await instance.uploadBufferToBackBlaze({
+              fileName: uploadName,
+              bufferToUpload: fs.readFileSync(chunkEntry.old.tmpFilePath),
+              info: chunkEntry.old.info.info
+            })
+            chunkEntry.new.info = fileCreated?.data
+          }
           if (chunkEntry.new.info.contentSha1 != chunkEntry.old.info.contentSha1) {
             throw new SHA1MismatchException()
           }
@@ -180,6 +213,15 @@ function createUploadPath(from, to, chunkEntry) {
   }
   return chunkEntry.old.info.fileName
 }
+/**
+ * @param  {B2Service} instance
+ * @param  {} from
+ * @param  {} limit
+ * @param  {} chunkSize
+ * @param  {} oldFilesReq
+ * @param  {} appKeyTmpFolder
+ * @param  {} migratedFiles
+ */
 
 async function downloadB2Files(
   instance,
