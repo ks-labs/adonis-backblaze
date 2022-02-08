@@ -27,14 +27,14 @@ class B2Service {
     /** @type {Helpers} */
     this._helpers = Helpers
     this.emptyOptions = {
-      dummy: undefined,
+      dummy: false,
       blazeAppKey: undefined,
       blazeBucketID: undefined,
       blazeBucketName: undefined,
       blazeAppKeyID: undefined,
       blazeAppKeyPrefix: undefined,
-      defaultDownloadTime: undefined,
-      defaultTimeout: undefined
+      defaultDownloadTime: 8640,
+      defaultTimeout: 1800000
     }
     this._loadDefaultConfig()
   }

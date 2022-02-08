@@ -1,5 +1,14 @@
-* :bug: fix(token): remove authorize from upload chunk loop that cause authorization token error (fc04fa2)
-* :green_heart: ci(ci-cd): fix integration tests (13a57f4)
+## [2.3.15](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.15) (2022-02-08)
+
+- :white_check_mark: test: fix tests to achieve expected behaviour from new config load (43d7a95)
+- :sparkles: feat(upload): add check if allready uploaded original file skipping if allready uploaded (1cc2e87)
+- :sparkles: feat(service): add listFileVersions method to the provider using env bucketId as default parameter (1cf1e07)
+- :bug: fix(config): remove reusing of envs when change config, causing overlap envs bug (40ec445)
+
+## [2.3.14](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.14) (2022-02-08)
+
+- :bug: fix(token): remove authorize from upload chunk loop that cause authorization token error (fc04fa2)
+- :green_heart: ci(ci-cd): fix integration tests (13a57f4)
 
 ## [2.3.13](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.13) (2022-02-08)
 

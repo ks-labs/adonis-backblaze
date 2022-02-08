@@ -46,7 +46,7 @@ test.group('Backblaze Integration Tests', group => {
   test('B2Config Loaded Correctly', async t => {
     const b2Options = ioc.use('AdonisB2')._b2Options
     t.isDefined(b2Options)
-    t.strictEqual(b2Options.dummy, undefined)
+    t.strictEqual(b2Options.dummy, false)
 
     t.notStrictEqual(b2Options.blazeAppKeyID, 'testing')
     t.notStrictEqual(b2Options.blazeAppKeyID, 'testing')

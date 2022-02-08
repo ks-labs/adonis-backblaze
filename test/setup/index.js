@@ -24,7 +24,7 @@ class Context extends Macroable {
 Context.getters = {}
 Context.macros = {}
 
-const fakeConfig = {
+const dummyConfig = {
   dummy: true,
   // Load Envs
   blazeAppKeyID: 'testing',
@@ -39,7 +39,8 @@ const fakeConfig = {
 require('dotenv').config({
   path: 'test.env'
 })
-const testConfig = {
+const functionalConfig = {
+  dummy: false,
   // Load Envs
   blazeAppKeyID: process.env.B2_APP_KEY_ID,
   blazeAppKeyName: process.env.B2_APP_KEY_NAME,
@@ -64,9 +65,9 @@ module.exports = async (opts = { dummy: true }) => {
     const config = new Config()
 
     if (opts.dummy) {
-      config.set('b2-provider', fakeConfig)
+      config.set('b2-provider', dummyConfig)
     } else {
-      config.set('b2-provider', testConfig)
+      config.set('b2-provider', functionalConfig)
     }
 
     return config
