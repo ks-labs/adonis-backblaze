@@ -181,8 +181,10 @@ async function downloadB2Files(
             })
             downObj.hasFileCache = sha1 === oldFile.contentSha1
           } catch (err) {
-            console.error(err.code)
-            console.warn('[C-' + Cidx + ']', '[WARN] blocked or not exists!', tmpFilePath)
+            if (err.code !== 'ENOENT') {
+              console.error(err.code)
+              console.warn('[C-' + Cidx + ']', '[WARN] file blocked!', oldFile.fileName)
+            }
           }
           if (downObj.hasFileCache) {
             console.log('[C-' + Cidx + ']', '[LOG] skipping allready downloaded:', oldFile.fileName)
