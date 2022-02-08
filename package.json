@@ -25,7 +25,6 @@
     "github": {
       "release": true
     },
-    "npm": false,
     "increment": "conventional:@favoloso/emoji",
     "scripts": {
       "changelog": "./node_modules/.bin/conventional-changelog -p @favoloso/emoji | tail -n +3",

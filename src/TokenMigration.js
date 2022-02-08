@@ -59,7 +59,6 @@ async function doTokenMigration(instance, opts) {
   console.log('[LOG] All files migrated, has error ?', hasError)
   if (deleteOldFile) {
     console.log('[LOG] Changing to old token and deleting old files:')
-    await instance.changeConfig(opts.from)
     if (!hasError) {
       for (const migrate of migratedFiles) {
         downCount++
@@ -128,10 +127,10 @@ async function uploadDownloaded(
 ) {
   const finishedEntries = []
   const chunks = _.chunk(migratedFiles, chunkSize)
+  await instance.changeConfig(to)
   for (const cId in chunks) {
     const chunkEntriesFinished = await Promise.all(
       chunks[cId].map(async chunkEntry => {
-        await instance.changeConfig(to)
         if (!chunkEntry.error) {
           chunkEntry.error = null
         }
@@ -156,7 +155,7 @@ async function uploadDownloaded(
             throw new SHA1MismatchException()
           }
         } catch (error) {
-          console.error(error)
+          console.error(error.message, chunkEntry.old.info.fileId)
           chunkEntry.error = error
         }
         downCount--
@@ -166,6 +165,7 @@ async function uploadDownloaded(
     finishedEntries.push(...chunkEntriesFinished)
   }
 
+  await instance.changeConfig(from)
   return { downCount, migratedFiles: finishedEntries }
 }
 
