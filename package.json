@@ -16,6 +16,34 @@
   "favolosoEmoji": {
     "showEmojiPerCommit": true
   },
+  "release-it": {
+    "git": {
+      "tagName": "v${version}",
+      "commitMessage": "🔖 chore(release): ${version}",
+      "pushArgs": [
+        "--follow-tags",
+        "--force"
+      ]
+    },
+    "github": {
+      "release": true
+    },
+    "npm": false,
+    "increment": "conventional:@favoloso/emoji",
+    "scripts": {
+      "changelog": "./node_modules/.bin/conventional-changelog -p @favoloso/emoji | tail -n +3",
+      "beforeStage": "./node_modules/.bin/conventional-changelog -p @favoloso/emoji -i CHANGELOG.md -s"
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "@favoloso/emoji",
+        "infile": "CHANGELOG.md"
+      }
+    },
+    "writerOpts": {
+      "headerPartial": "## {{#if @root.linkCompare~}} [{{version}}]({{host}}/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}) {{~else}} {{~version}} {{~/if}} {{~#if title}} \"{{title}}\" {{~/if}} {{~#if date}} ({{date}}) {{/if}}\n"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },

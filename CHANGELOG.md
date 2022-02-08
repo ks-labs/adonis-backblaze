@@ -1,10 +1,10 @@
-# [2.3.10](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.9...v2.3.10) (2022-02-08)
+## [2.3.10](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.10...v2.3.10) (2022-02-08)
 
 ## Added
 
 - ✨ feat(download): add support to chunk and parallel downloads during migration [[44f6b31](https://github.com/ks-labs/adonis-backblaze/commit/44f6b31d959835c8898d42f6e2049de0ea107197)]
 
-# [2.3.9](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.8...v2.3.9) (2022-02-07)
+## [2.3.9](https://github.com/ks-labs/adonis-backblaze/compare/v2.3.8...v2.3.9) (2022-02-07)
 
 ## Added
 

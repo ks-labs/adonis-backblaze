@@ -43,11 +43,11 @@ module.exports = {
     },
     {
       value: ':boom: feat',
-      name: '💥 feat:\t A feat that introduced breaking changes'
+      name: '💥 feat:\tA feat that introduced breaking changes'
     },
     {
       value: ':boom: fix',
-      name: '💥 fix:\t A fix that introduced breaking changes'
+      name: '💥 fix:\tA fix that introduced breaking changes'
     }
   ],
 

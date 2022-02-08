@@ -172,7 +172,7 @@ async function downloadB2Files(
         }
         try {
           // created this form because its more secure avoid file collisions
-          const tmpFilePath = path.join(appKeyTmpFolder, oldFile.fileName)
+          const tmpFilePath = path.join(appKeyTmpFolder, oldFile.fileId, oldFile.fileName)
           try {
             fs.accessSync(tmpFilePath, fs.constants.R_OK | fs.constants.W_OK)
             const sha1 = hash.fromFileSync(tmpFilePath, {
