@@ -39,9 +39,6 @@
         "preset": "@favoloso/emoji",
         "infile": "CHANGELOG.md"
       }
-    },
-    "writerOpts": {
-      "headerPartial": "## {{#if @root.linkCompare~}} [{{version}}]({{host}}/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}) {{~else}} {{~version}} {{~/if}} {{~#if title}} \"{{title}}\" {{~/if}} {{~#if date}} ({{date}}) {{/if}}\n"
     }
   },
   "publishConfig": {
@@ -57,10 +54,10 @@
     "cm": "cz",
     "changemoji": "npx gitmoji-changelog",
     "rit": "release-it",
-    "release": "standard-version --releaseCommitMessageFormat \":pushpin: chore(release): {{currentTag}}\"",
-    "release:minor": "standard-version --release-as minor --releaseCommitMessageFormat \":pushpin: chore(release): {{currentTag}}\"",
-    "release:patch": "standard-version --release-as patch --releaseCommitMessageFormat \":pushpin: chore(release): {{currentTag}}\"",
-    "release:major": "standard-version --release-as major --releaseCommitMessageFormat \":pushpin: chore(release): {{currentTag}}\"",
+    "release": "release-it",
+    "release:patch": "release-it patch",
+    "release:minor": "release-it minor",
+    "release:major": "release-it major",
     "prepare": "npx husky install"
   },
   "devDependencies": {
