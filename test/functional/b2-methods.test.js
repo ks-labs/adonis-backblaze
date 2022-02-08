@@ -19,6 +19,8 @@ test.group('Backblaze Integration Tests', group => {
   group.beforeEach(async () => {
     await ioc.restore()
     cfgWithSlashPrefix = {
+      blazeBucketID: process.env.B2_BUCKET_ID,
+      blazeBucketName: process.env.B2_BUCKET_NAME,
       blazeAppKey: process.env.OLD_B2_APP_KEY,
       blazeAppKeyID: process.env.OLD_B2_APP_KEY_ID,
       blazeAppKeyName: process.env.OLD_B2_APP_KEY_NAME,
@@ -26,6 +28,8 @@ test.group('Backblaze Integration Tests', group => {
     }
 
     cfgWithoutSlash = {
+      blazeBucketID: process.env.B2_BUCKET_ID,
+      blazeBucketName: process.env.B2_BUCKET_NAME,
       blazeAppKey: process.env.B2_APP_KEY,
       blazeAppKeyID: process.env.B2_APP_KEY_ID,
       blazeAppKeyName: process.env.B2_APP_KEY_NAME,

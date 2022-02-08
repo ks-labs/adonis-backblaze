@@ -26,23 +26,24 @@ class B2Service {
     this.ConfigInstance = ConfigInstance
     /** @type {Helpers} */
     this._helpers = Helpers
+    this.emptyOptions = {
+      dummy: undefined,
+      blazeAppKey: undefined,
+      blazeBucketID: undefined,
+      blazeBucketName: undefined,
+      blazeAppKeyID: undefined,
+      blazeAppKeyPrefix: undefined,
+      defaultDownloadTime: undefined,
+      defaultTimeout: undefined
+    }
     this._loadDefaultConfig()
   }
   /**
    * @param  {Sync.Config} ConfigInstance
    */
   _loadDefaultConfig() {
-    this._b2Options = {
-      dummy: undefined,
-      blazeAppKey: undefined,
-      blazeAppKeyID: undefined,
-      blazeBucketID: undefined,
-      blazeAppKeyPrefix: undefined,
-      defaultDownloadTime: undefined,
-      defaultTimeout: undefined
-    }
     // Load Envs
-    this._b2Options = this.ConfigInstance.merge('b2-provider', this._b2Options)
+    this._b2Options = this.ConfigInstance.merge('b2-provider', this.emptyOptions)
     if (!this._b2Options.blazeAppKey) {
       throw new Error('Invalid Backblaze "blazeAppKey" when load config file.')
     }
@@ -61,7 +62,7 @@ class B2Service {
   }
 
   async changeConfig(newConfig) {
-    this._b2Options = _.merge(this._b2Options, newConfig)
+    this._b2Options = _.merge(this.emptyOptions, newConfig)
     this.recreateB2Instance()
     return await this.authorize()
   }
@@ -351,11 +352,10 @@ class B2Service {
     let finalPath = []
     const filteredArgs = args.filter(val => !!val)
 
-    // unifica segmentos de caminho para criar um path completo
-    // para enviar para uma pasta especifica precisa inicar sem '/' e cada nivel de pasta separada por uma '/'
+    // to upload to an specific folder the prefix '/' must not exists..
+    // ..otherwise will be genrate a file with path as name
     // "fileName": "fluffy/kitten.jpg"
-    // atualmente retorna com / inicial para conseguir fazer upload corretamente.
-    // fileName / prefix
+    // if it was with '/' on start of token prefix, a file will be created.
     if (allowedPrefixForKey) {
       finalPath.push(allowedPrefixForKey)
     }
@@ -364,16 +364,6 @@ class B2Service {
     }
     return finalPath.join('/').split('//').join('/')
   }
-
-  _buildFilePathCustomPrefix(customPrefix, ...segments) {
-    // unifica segmentos de caminho para criar um path completo
-    // para enviar para uma pasta especifica precisa inicar sem '/' e cada nivel de pasta separada por uma '/'
-    // "fileName": "fluffy/kitten.jpg"
-    // atualmente retorna com / inicial para conseguir fazer upload corretamente.
-    // fileName / prefix
-    return (customPrefix || '') + '/' + posix.normalize(posix.join(...segments.filter(val => val)))
-  }
-
   async normalizeAndCreateB2File(response) {
     /** @type {typeof import('../templates/B2File')} */
     const B2File = use('App/Models/B2File')
