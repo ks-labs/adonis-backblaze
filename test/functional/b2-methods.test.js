@@ -172,6 +172,7 @@ test.group('Backblaze Integration Tests', group => {
     await b2Singleton.migrateTokenAndDatabaseNames({
       deleteOldFiles: true,
       updateDBModels: true,
+      removeSlashPrefix: true,
       from: cfgWithSlashPrefix,
       to: cfgWithoutSlash
     })

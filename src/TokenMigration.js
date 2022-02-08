@@ -17,6 +17,7 @@ async function doTokenMigration(instance, opts) {
     limit = 10000,
     chunkSize = 1,
     updateDBModels = false,
+    removeSlashPrefix = false,
     deleteOldFile = false
   } = opts
   if (instance.isDummy) throw new Error('Dummy mode is not supported for this method')
@@ -51,7 +52,8 @@ async function doTokenMigration(instance, opts) {
     downCount,
     oldFilesReq,
     from,
-    chunkSize
+    chunkSize,
+    removeSlashPrefix
   )
   downCount = uploaded.downCount
   migratedFiles = uploaded.migratedFiles
@@ -65,7 +67,7 @@ async function doTokenMigration(instance, opts) {
   if (deleteOldFile) {
     console.log('[LOG] Changing to old token and deleting old files:')
     if (!hasError) {
-      for (const migrate of migratedFiles) {
+      for (const cEntry of migratedFiles) {
         downCount++
         console.log(
           '[LOG] Deleting old files ',
@@ -74,7 +76,7 @@ async function doTokenMigration(instance, opts) {
           oldFilesReq?.files?.length ?? 0,
           ' old files'
         )
-        await instance.deleteB2Object(migrate.old.info)
+        await instance.deleteB2Object(cEntry.old.info)
       }
       console.log('[LOG] finished migration')
     } else {
@@ -85,31 +87,30 @@ async function doTokenMigration(instance, opts) {
   // update all database entries
   if (updateDBModels) {
     for (const id in migratedFiles) {
-      let migrated = migratedFiles[id]
-      if (migrated.error) {
-        console.warn('Skip because has error:', migrated.old.info.fileName)
+      let cEntry = migratedFiles[id]
+      if (cEntry.error) {
+        console.warn('Skipping with error:', cEntry.old.info.fileName, cEntry.error.message)
       } else {
         /** @type {typeof import('../templates/B2File')} */
         const B2File = use('App/Models/B2File')
-        const b2Model = await B2File.findBy('fileId', migrated.old.info.fileId)
+        const b2Model = await B2File.findBy('fileId', cEntry.old.info.fileId)
         if (!b2Model) {
-          const allreadyFound = await B2File.findBy('fileId', migrated.new.info.fileId)
+          const allreadyFound = await B2File.findBy('fileId', cEntry.new.info.fileId)
           if (allreadyFound) {
-            console.log('[LOG] model allready migrated fileId', migrated.new.info.fileId)
+            console.log('[LOG] model allready updated:', cEntry.new.info.fileId)
           } else {
-            console.warn('[WARN] model not found fileId', migrated.old.info.fileId)
+            console.warn('[WARN] model not found to update:', cEntry.old.info.fileId)
           }
           continue
         }
-        const newB2File = B2File.fromBBlazeToB2File(migrated.new.info)
+        const newB2File = B2File.fromBBlazeToB2File(cEntry.new.info)
         await b2Model.merge(newB2File)
         await b2Model.save()
         migratedFiles[id].model = b2Model // save model reference to return
         console.log(
           '[LOG] Updated B2 Model:',
-          migrated.old.info.fileName,
-          'to',
-          migrated.new.info.fileName
+          cEntry?.old?.info?.fileName?.substring(0, 20) + '... to',
+          cEntry?.new?.info?.fileName?.substring(0, 20) + '...'
         )
       }
     }
@@ -136,28 +137,32 @@ async function uploadDownloaded(
   downCount,
   oldFilesReq,
   from,
-  chunkSize
+  chunkSize,
+  removeSlashPrefix
 ) {
   const finishedEntries = []
   const chunks = _.chunk(migratedFiles, chunkSize)
   await instance.changeConfig(to)
   for (const cId in chunks) {
     const chunkEntriesFinished = await Promise.all(
-      chunks[cId].map(async chunkEntry => {
-        if (!chunkEntry.error) {
-          chunkEntry.error = null
+      chunks[cId].map(async state => {
+        state.hasUpload = false
+        if (!state.error) {
+          state.error = null
         }
-        const uploadName = createUploadPath(from, to, chunkEntry)
         try {
-          const canDownload = await instance.listFileVersions({
+          const uploadName = createUploadPath(from, to, state, removeSlashPrefix)
+          const fileVersions = await instance.listFileVersions({
             startFileName: uploadName
           })
-          if (
-            canDownload &&
-            canDownload?.data &&
-            canDownload?.data?.files?.length &&
-            canDownload?.data?.files[0].contentSha1 === chunkEntry?.old?.info?.contentSha1
-          ) {
+          state.hasUpload =
+            fileVersions &&
+            fileVersions?.data &&
+            fileVersions?.data?.files?.length &&
+            fileVersions?.data?.files[0].contentSha1 === state?.old?.info?.contentSha1
+
+          if (state.hasUpload) {
+            const uploadReference = fileVersions?.data?.files[0] ?? null
             console.log(
               '[C-' + cId + ']',
               '[LOG] Upload remaining',
@@ -166,9 +171,9 @@ async function uploadDownloaded(
               oldFilesReq?.files?.length ?? 0,
               'total',
               'allready exists skipping',
-              canDownload?.data?.files[0]?.fileName
+              uploadReference.fileName
             )
-            chunkEntry.new.info = canDownload?.data?.files[0] ?? null
+            state.new.info = uploadReference ?? null
           } else {
             console.log(
               '[C-' + cId + ']',
@@ -179,20 +184,20 @@ async function uploadDownloaded(
             )
             const fileCreated = await instance.uploadBufferToBackBlaze({
               fileName: uploadName,
-              bufferToUpload: fs.readFileSync(chunkEntry.old.tmpFilePath),
-              info: chunkEntry.old.info.info
+              bufferToUpload: fs.readFileSync(state.old.tmpFilePath),
+              info: state.old.info.info
             })
-            chunkEntry.new.info = fileCreated?.data
+            state.new.info = fileCreated?.data
           }
-          if (chunkEntry.new.info.contentSha1 != chunkEntry.old.info.contentSha1) {
+          if (state.new.info.contentSha1 != state.old.info.contentSha1) {
             throw new SHA1MismatchException()
           }
         } catch (error) {
-          console.error(error.message, chunkEntry.old.info.fileId)
-          chunkEntry.error = error
+          console.error(error.message, state.old.info.fileId)
+          state.error = error
         }
         downCount--
-        return chunkEntry
+        return state
       })
     )
     finishedEntries.push(...chunkEntriesFinished)
@@ -202,16 +207,20 @@ async function uploadDownloaded(
   return { downCount, migratedFiles: finishedEntries }
 }
 
-function createUploadPath(from, to, chunkEntry) {
+function createUploadPath(from, to, chunkEntry, removeSlashPrefix) {
+  let finalUploadPath = chunkEntry.old.info.fileName
   if (
     from.blazeAppKeyPrefix &&
-    from.blazeAppKeyPrefix.length > 0 &&
+    from.blazeAppKeyPrefix.length &&
     from.blazeAppKeyPrefix !== to.blazeAppKeyPrefix
   ) {
     // remove the old prefix from the file name
-    return chunkEntry.old.info.fileName.split(from.blazeAppKeyPrefix).join('')
+    finalUploadPath = finalUploadPath.split(from.blazeAppKeyPrefix).join('')
   }
-  return chunkEntry.old.info.fileName
+  if (removeSlashPrefix && finalUploadPath.startsWith('/')) {
+    finalUploadPath = finalUploadPath.replace(/^\/+/, '')
+  }
+  return finalUploadPath
 }
 /**
  * @param  {B2Service} instance
@@ -221,6 +230,7 @@ function createUploadPath(from, to, chunkEntry) {
  * @param  {} oldFilesReq
  * @param  {} appKeyTmpFolder
  * @param  {} migratedFiles
+ * @param  {} removeSlashPrefix
  */
 
 async function downloadB2Files(
@@ -230,7 +240,8 @@ async function downloadB2Files(
   chunkSize,
   oldFilesReq,
   appKeyTmpFolder,
-  migratedFiles
+  migratedFiles,
+  removeSlashPrefix = false
 ) {
   await instance.changeConfig(from)
 
@@ -243,39 +254,39 @@ async function downloadB2Files(
 
   let downCount = 0
   const chunked = _.chunk(oldFilesReq.files, chunkSize)
-  for (const Cidx in chunked) {
+  for (const cIdx in chunked) {
     const chunksResolved = await Promise.all(
-      chunked[Cidx].map(async oldFile => {
-        let downObj = {
-          hasFileCache: false,
+      chunked[cIdx].map(async cEntry => {
+        let migrationObj = {
+          downCached: false,
           old: {},
           new: {}
         }
         try {
           // created this form because its more secure avoid file collisions
-          const tmpFilePath = path.join(appKeyTmpFolder, oldFile.fileId, oldFile.fileName)
+          const tmpFilePath = path.join(appKeyTmpFolder, cEntry.fileId, cEntry.fileName)
           try {
             fs.accessSync(tmpFilePath, fs.constants.R_OK | fs.constants.W_OK)
             const sha1 = hash.fromFileSync(tmpFilePath, {
               algorithm: 'sha1',
               encoding: 'hex'
             })
-            downObj.hasFileCache = sha1 === oldFile.contentSha1
+            migrationObj.downCached = sha1 === cEntry.contentSha1
           } catch (err) {
             if (err.code !== 'ENOENT') {
               console.error(err.code)
-              console.warn('[C-' + Cidx + ']', '[WARN] file blocked!', oldFile.fileName)
+              console.warn('[C-' + cIdx + ']', '[WARN] file blocked!', cEntry.fileName)
             }
           }
-          if (downObj.hasFileCache) {
-            console.log('[C-' + Cidx + ']', '[LOG] skipping allready downloaded:', oldFile.fileName)
+          if (migrationObj.downCached) {
+            console.log('[C-' + cIdx + ']', '[LOG] skipping allready downloaded:', cEntry.fileName)
           } else {
             const downloaded = await instance.b2.downloadFileById({
-              fileId: oldFile.fileId,
+              fileId: cEntry.fileId,
               responseType: 'arraybuffer'
             })
             console.log(
-              '[C-' + Cidx + ']',
+              '[C-' + cIdx + ']',
               '[LOG] DOWNLOADED',
               downCount,
               'of',
@@ -302,16 +313,16 @@ async function downloadB2Files(
             }
           }
 
-          downObj.old = {
-            info: oldFile,
+          migrationObj.old = {
+            info: cEntry,
             tmpFilePath
           }
         } catch (error) {
-          downObj.error = error
+          migrationObj.error = error
           console.error('[ERROR]', error)
         }
         downCount++
-        return downObj
+        return migrationObj
       })
     )
     migratedFiles.push(...chunksResolved)

@@ -304,6 +304,7 @@ class B2Service {
    * @param  {number} opts.chunkSize - determines the size of the chunks for parallel execution (default is 1 == sequential)
    * @param  {boolean} opts.updateDBModels - if true, will update the database models with the new file info
    * @param  {boolean} opts.deleteOldFile - delete the old file after success migration
+   * @param  {boolean} opts.removeSlashPrefix - remove initial slash / that to transform all file names in folders path
    * @param  {number} opts.limit - limit of files to migrate 10000 is default max is 10000
    * @param  {Object} opts.from
    * @param  {Object} opts.from.blazeAppKeyPrefix
