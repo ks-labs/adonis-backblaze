@@ -87,26 +87,40 @@ async function doTokenMigration(instance, opts) {
   // update all database entries
   if (updateDBModels) {
     for (const id in migratedFiles) {
-      let cEntry = migratedFiles[id]
+      const cEntry = migratedFiles[id]
       if (cEntry.error) {
         console.warn('Skipping with error:', cEntry.old.info.fileName, cEntry.error.message)
       } else {
         /** @type {typeof import('../templates/B2File')} */
         const B2File = use('App/Models/B2File')
-        const b2Model = await B2File.findBy('fileId', cEntry.old.info.fileId)
+        let b2Model = await B2File.findBy('fileId', cEntry.old.info.fileId, false)
         if (!b2Model) {
-          const allreadyFound = await B2File.findBy('fileId', cEntry.new.info.fileId)
-          if (allreadyFound) {
-            console.log('[LOG] model allready updated:', cEntry.new.info.fileId)
+          const allreadyUpdated = await B2File.query(true)
+            .where({
+              contentSha1: cEntry.new.info.contentSha1,
+              bucketId: cEntry.new.info.bucketId
+            })
+            .first()
+          if (allreadyUpdated && allreadyUpdated.id) {
+            console.log(
+              '[LOG] model allready updated:',
+              cEntry.new.info.fileName,
+              allreadyUpdated.fileName
+            )
+            const updateData = B2File.fromBBlazeToB2File(cEntry.new.info)
+            await allreadyUpdated.merge(updateData)
+            await allreadyUpdated.save()
+            migratedFiles[id].model = allreadyUpdated // save model reference to return
           } else {
             console.warn('[WARN] model not found to update:', cEntry.old.info.fileId)
+            continue
           }
-          continue
+        } else {
+          const newB2File = B2File.fromBBlazeToB2File(cEntry.new.info)
+          await b2Model.merge(newB2File)
+          await b2Model.save()
+          migratedFiles[id].model = b2Model // save model reference to return
         }
-        const newB2File = B2File.fromBBlazeToB2File(cEntry.new.info)
-        await b2Model.merge(newB2File)
-        await b2Model.save()
-        migratedFiles[id].model = b2Model // save model reference to return
         console.log(
           '[LOG] Updated B2 Model:',
           cEntry?.old?.info?.fileName?.substring(0, 20) + '... to',

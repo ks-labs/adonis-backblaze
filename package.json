@@ -65,6 +65,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@adonisjs/lucid": "^6.3.0",
     "@adonisjs/sink": "^1.1.0",
     "@commitlint/cli": "^16.1.0",
     "@favoloso/conventional-changelog-emoji": "^0.10.0",

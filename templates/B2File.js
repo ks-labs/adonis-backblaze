@@ -1,12 +1,13 @@
 'use strict'
 
-/** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
+/** @type {typeof import('@adonisjs/lucid/src/Lucid/Model/Base')} */
 const Model = use('Model')
 
 class B2File extends Model {
   static async createFromBackBlaze(backBlazeObject) {
     return B2File.create(B2File.fromBBlazeToB2File(backBlazeObject))
   }
+
   static fromBBlazeToB2File(b2UploadObject) {
     const {
       file_password = null,

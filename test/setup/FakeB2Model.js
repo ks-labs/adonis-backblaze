@@ -8,10 +8,16 @@ class FakeModel {
     else return new FakeModel()
   }
 
-  static findBy(object) {
-    if (allFiles.find(file => file.id === object.id))
-      return allFiles.find(file => file.id === object.id)
-    else return new FakeModel()
+  static findBy(key, value, find) {
+    if (find) {
+      if (allFiles.find(file => file[key] === value)) {
+        return allFiles.find(file => file[key] === value)
+      } else {
+        return new FakeModel()
+      }
+    } else {
+      return null
+    }
   }
 
   static create(args) {
@@ -73,9 +79,22 @@ class FakeModel {
   }
 
   merge(object) {
-    return _.merge(this, object)
+    return _.merge(this || {}, object)
   }
+
   save() {}
+
+  static query(find) {
+    return {
+      where: object => {
+        return {
+          first: () => {
+            return find ? FakeModel.createFromBackBlaze(object) : null
+          }
+        }
+      }
+    }
+  }
 }
 
 module.exports = FakeModel
