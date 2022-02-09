@@ -38,18 +38,9 @@
       "changelog": "./node_modules/.bin/conventional-changelog -p @favoloso/emoji | tail -n +3",
       "beforeStage": "./node_modules/.bin/conventional-changelog -p @favoloso/emoji -i CHANGELOG.md -s"
     },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": "@favoloso/emoji",
-        "infile": "CHANGELOG.md"
-      }
+    "hooks": {
+      "after:bump": "npx gitmoji-changelog"
     }
-  },
-  "favolosoEmoji": {
-    "showEmojiPerCommit": true
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "scripts": {
     "lint": "standard",
@@ -60,12 +51,18 @@
     "posttest": "echo posttest",
     "cm": "cz",
     "changemoji": "npx gitmoji-changelog",
-    "rit": "release-it",
+    "ri": "release-it",
     "release": "release-it",
     "release:patch": "release-it patch",
     "release:minor": "release-it minor",
     "release:major": "release-it major",
     "prepare": "npx husky install"
+  },
+  "favolosoEmoji": {
+    "showEmojiPerCommit": true
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@adonisjs/sink": "^1.1.0",
