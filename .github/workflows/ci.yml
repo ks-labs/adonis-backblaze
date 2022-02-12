@@ -37,7 +37,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: echo "@ks-labs:registry=https://npm.pkg.github.com/" >> .npmrc
       # Skip post-install scripts here, as a malicious
       # script could steal NODE_AUTH_TOKEN.
       - run: npm install --ignore-scripts
