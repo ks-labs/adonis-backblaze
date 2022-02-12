@@ -25,28 +25,8 @@ env:
   OLD_B2_APP_KEY_PREFIX: ${{ secrets.OLD_B2_APP_KEY_PREFIX }}
 
 jobs:
-  test:
-    name: 'Install and test package'
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.15.4]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      # move .npmrc to not cause  "Maximum call stack size exceeded" error when npm install executes
-      - run: |
-          npm install
-          npm test
-
   publish-package:
-    needs:
-      - test
-    name: 'Deploy to GH Packages'
+    name: 'Test and Deploy to GH Packages'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -61,7 +41,15 @@ jobs:
           node-version: ${{ matrix.node-version }}
           registry-url: https://npm.pkg.github.com/
           scope: '@ks-labs'
-      - run: echo "registry=https://npm.pkg.github.com/ks-labs" >> .npmrc
+      # Skip post-install scripts here, as a malicious
+      # script could steal NODE_AUTH_TOKEN.
+      - run: npm install --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGES_TOKEN}}
+      # rebuild will run the scripts skipped
+      - run: npm rebuild && npm run prepare --if-present
+      - run: npm test
+      - run: echo "@ks-labs:registry=https://npm.pkg.github.com/" >> .npmrc
       - run: npm publish $(ls *.tgz)
         env:
           NODE_AUTH_TOKEN: ${{secrets.PACKAGES_TOKEN}}

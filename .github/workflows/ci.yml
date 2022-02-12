@@ -37,7 +37,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      # move .npmrc to not cause  "Maximum call stack size exceeded" error when npm install executes
-      - run: |
-          npm install
-          npm test
+      - run: echo "@ks-labs:registry=https://npm.pkg.github.com/" >> .npmrc
+      # Skip post-install scripts here, as a malicious
+      # script could steal NODE_AUTH_TOKEN.
+      - run: npm install --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGES_TOKEN}}
+      # rebuild will run the scripts skipped
+      - run: npm rebuild && npm run prepare --if-present
+      - run: npm test
